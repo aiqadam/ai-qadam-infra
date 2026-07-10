@@ -1,0 +1,3 @@
+=== Probe I: nginx | date: 2026-07-08 | host: pro-data-tech-qa (95.46.211.230) ===
+sudo: 'nginx': command not found
+--- vhost summary ---

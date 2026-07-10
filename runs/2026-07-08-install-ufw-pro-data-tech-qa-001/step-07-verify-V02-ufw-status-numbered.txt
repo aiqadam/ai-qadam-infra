@@ -1,0 +1,7 @@
+﻿Status: active
+
+     To                         Action      From
+     --                         ------      ----
+[ 1] 22/tcp                     ALLOW IN    Anywhere                   # sshd - operator access T-0094 baseline
+[ 2] 22/tcp (v6)                ALLOW IN    Anywhere (v6)              # sshd - operator access T-0094 baseline
+

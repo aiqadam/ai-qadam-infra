@@ -1,0 +1,10 @@
+﻿{
+    "apply_to":  [
+                     {
+                         "server":  {
+                                        "id":  145542849
+                                    },
+                         "type":  "server"
+                     }
+                 ]
+}

@@ -1,0 +1,22 @@
+V08 — Postgres host-loopback live connection
+First attempt: ssh ... 'PGPASSWORD=$(grep POSTGRES_PASSWORD /var/www/ai-qadam-test/.env | cut -d= -f2) psql -h 127.0.0.1 -p 3112 -U aiqadam -d aiqadam_test -c '"'"'SELECT 1;'"'"''
+Result: "psql: warning: extra command-line argument 1 ignored" — PowerShell
+quote handling stripped the SQL string. Query still executed (returned
+"(1 row)") but warning was a red flag.
+
+Retry via base64 transport with proper quoting and a labeled column for clarity:
+  $cmd = 'PGPASSWORD=$(grep ^POSTGRES_PASSWORD= /var/www/ai-qadam-test/.env | cut -d= -f2) psql -h 127.0.0.1 -p 3112 -U aiqadam -d aiqadam_test -c "SELECT 1 AS connection_test;"'
+  $b64 = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($cmd))
+  ssh ... "echo $b64 | base64 -d | bash"
+
+Output:
+ connection_test
+-----------------
+               1
+(1 row)
+
+Verdict: PASS
+Note: clean connection from host loopback to 127.0.0.1:3112 (docker-proxy
+forwarding to ai-qadam-test-db-1:5432). Returned value 1. No warnings.
+Matches design Phase E4 host-side connect probe (executor reported
+identical result during execution).

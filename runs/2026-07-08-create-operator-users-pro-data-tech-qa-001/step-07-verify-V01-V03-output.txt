@@ -1,0 +1,16 @@
+V01/V02/V03 — id output for all three operator users
+
+Commands:
+  ssh root@95.46.211.230 'id tvolodi'
+  ssh root@95.46.211.230 'id viktor_d'
+  ssh root@95.46.211.230 'id binali_r'
+
+Output:
+  uid=1001(tvolodi) gid=1001(tvolodi) groups=1001(tvolodi),27(sudo),100(users),1000(sshusers)
+  uid=1002(viktor_d) gid=1002(viktor_d) groups=1002(viktor_d),27(sudo),100(users),1000(sshusers)
+  uid=1003(binali_r) gid=1003(binali_r) groups=1003(binali_r),27(sudo),100(users),1000(sshusers)
+
+Pass criteria:
+  V01: uid=1001(tvolodi) gid=1001(tvolodi) groups=1001(tvolodi),27(sudo),100(users),1000(sshusers) — EXACT MATCH. PASS
+  V02: uid=1002(viktor_d) gid=1002(viktor_d) groups=1002(viktor_d),27(sudo),100(users),1000(sshusers) — EXACT MATCH. PASS
+  V03: uid=1003(binali_r) gid=1003(binali_r) groups=1003(binali_r),27(sudo),100(users),1000(sshusers) — EXACT MATCH. PASS

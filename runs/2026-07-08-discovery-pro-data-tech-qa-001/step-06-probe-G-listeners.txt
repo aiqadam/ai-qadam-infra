@@ -1,0 +1,12 @@
+﻿=== Probe G: listeners | date: 2026-07-08 | host: pro-data-tech-qa (95.46.211.230) ===
+State  Recv-Q Send-Q Local Address:Port Peer Address:PortProcess                                                  
+LISTEN 0      4096      127.0.0.54:53        0.0.0.0:*    users:(("systemd-resolve",pid=28263,fd=20))             
+LISTEN 0      4096   127.0.0.53%lo:53        0.0.0.0:*    users:(("systemd-resolve",pid=28263,fd=18))             
+LISTEN 0      4096         0.0.0.0:22        0.0.0.0:*    users:(("sshd",pid=28491,fd=3),("systemd",pid=1,fd=205))
+LISTEN 0      4096            [::]:22           [::]:*    users:(("sshd",pid=28491,fd=4),("systemd",pid=1,fd=206))
+--- UDP ---
+State  Recv-Q Send-Q Local Address:Port Peer Address:PortProcess                                     
+UNCONN 0      0         127.0.0.54:53        0.0.0.0:*    users:(("systemd-resolve",pid=28263,fd=19))
+UNCONN 0      0      127.0.0.53%lo:53        0.0.0.0:*    users:(("systemd-resolve",pid=28263,fd=17))
+UNCONN 0      0          127.0.0.1:323       0.0.0.0:*    users:(("chronyd",pid=28282,fd=4))         
+UNCONN 0      0              [::1]:323          [::]:*    users:(("chronyd",pid=28282,fd=5))         

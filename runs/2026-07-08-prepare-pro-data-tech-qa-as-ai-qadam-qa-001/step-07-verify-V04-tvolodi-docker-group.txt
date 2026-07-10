@@ -1,0 +1,10 @@
+V04 — tvolodi in docker group check
+Command: ssh ... 'id tvolodi'
+Captured: 2026-07-08
+
+Output:
+uid=1001(tvolodi) gid=1001(tvolodi) groups=1001(tvolodi),27(sudo),100(users),1000(sshusers),986(docker)
+
+Verdict: PASS
+Note: tvolodi is in group 986(docker). Matches design Phase B7 / executor
+Outcome: "docker:x:986:tvolodi,viktor_d,binali_r".

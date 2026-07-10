@@ -1,0 +1,11 @@
+﻿=== Probe C: hardware | date: 2026-07-08 | host: pro-data-tech-qa (95.46.211.230) ===
+8
+---
+               total        used        free      shared  buff/cache   available
+Mem:            15Gi       647Mi        13Gi       5.0Mi       2.0Gi        14Gi
+Swap:             0B          0B          0B
+---
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1       145G  2.9G  142G   2% /
+/dev/sda13      989M  150M  772M  17% /boot
+/dev/sda15      105M  6.3M   99M   7% /boot/efi

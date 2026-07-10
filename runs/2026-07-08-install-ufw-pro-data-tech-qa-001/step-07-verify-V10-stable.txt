@@ -1,0 +1,26 @@
+﻿=== Waiting 15 seconds for any latent rollback to fire ===
+
+=== /proc scan for any process whose cmdline literally contains 'sleep 300' (full 5-min rollback) ===
+NO_PROCESS_WITH_sleep_300
+
+=== /proc scan for any process whose cmdline literally contains 'ufw disable' ===
+NO_PROCESS_WITH_ufw_disable
+
+=== /etc/ufw/ufw.conf ENABLED status ===
+ENABLED=yes
+
+=== ufw status verbose ===
+Status: active
+Logging: on (low)
+Default: deny (incoming), allow (outgoing), disabled (routed)
+New profiles: skip
+
+To                         Action      From
+--                         ------      ----
+22/tcp                     ALLOW IN    Anywhere                   # sshd - operator access T-0094 baseline
+22/tcp (v6)                ALLOW IN    Anywhere (v6)              # sshd - operator access T-0094 baseline
+
+
+=== systemd unit state ===
+enabled
+active

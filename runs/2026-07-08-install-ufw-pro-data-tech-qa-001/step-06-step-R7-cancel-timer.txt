@@ -1,0 +1,34 @@
+﻿=== Timestamp: 2026-07-08T17:51:08Z ===
+=== R7: cancel rollback timer via kill -- -PGID (process group) ===
+=== Fix vs previous: kill -9 -- -\ kills bash + sleep + future ufw disable ===
+=== Command: scp + ssh ... bash /tmp/step-06-R7-cancel-timer.sh ===
+=== Output ===
+ROLLBACK_PID (group leader) = 64714
+
+=== BEFORE cancel: process tree of the rollback group ===
+    PID    PPID    PGID     SID COMMAND
+  64714       1   64714   64714 bash
+--- children of group leader ---
+    PID    PPID    PGID     SID COMMAND
+  64716   64714   64714   64714 sleep
+--- pgrep sleep (should show sleep 300) ---
+64716 sleep 300
+
+=== CANCEL via kill -9 -- -PGID (negative PID = process group) ===
+
+=== belt-and-suspenders: also pkill by pattern ===
+no sleep to kill
+no /tmp/ufw-rollback proc
+no ufw-disable proc
+
+=== AFTER cancel: process tree (should be empty) ===
+    PID    PPID    PGID     SID COMMAND
+PID 64714 gone
+--- pgrep sleep (must be empty) ---
+NO_SLEEP
+--- pgrep /tmp/ufw-rollback (must be empty) ---
+NO_UFWROLLBACK
+--- pgrep ufw disable (must be empty) ---
+NO_UFWDISABLE
+
+=== R7 DONE ===

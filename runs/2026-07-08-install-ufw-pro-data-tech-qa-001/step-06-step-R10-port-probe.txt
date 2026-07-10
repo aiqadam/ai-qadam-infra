@@ -1,0 +1,21 @@
+﻿=== Timestamp: 2026-07-08T17:52:37Z ===
+=== R10: off-host TCP probe (22=True, 80/443=False) ===
+=== PowerShell Test-NetConnection from management workstation ===
+
+=== Port 22 ===
+TcpTestSucceeded: True
+RemoteAddress: 95.46.211.230
+RemotePort:    22
+InterfaceAlias: Wi-Fi
+SourceAddress:  MSFT_NetIPAddress (Name = ";C?8;@B8;:8?55;@55;55;", CreationClassName = "", SystemCreationClassName = "", SystemName = "")
+
+=== Port 80 ===
+TcpTestSucceeded: False
+
+=== Port 443 ===
+TcpTestSucceeded: False
+
+=== R10 interpretation ===
+Port 22  True  -> SSH allowed, sshd listening. UFW 22/tcp ALLOW rule is active.
+Port 80  False -> No listener AND/OR UFW default-deny. Expected: deny.
+Port 443 False -> No listener AND/OR UFW default-deny. Expected: deny.

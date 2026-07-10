@@ -1,0 +1,6 @@
+=== Probe H: docker | date: 2026-07-08 | host: pro-data-tech-qa (95.46.211.230) ===
+--- containers ---
+docker not callable
+--- compose projects discoverable ---
+no docker compose ls
+--- compose files on disk ---

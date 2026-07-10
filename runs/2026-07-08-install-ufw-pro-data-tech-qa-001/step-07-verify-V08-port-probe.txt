@@ -1,0 +1,42 @@
+﻿
+
+ComputerName     : 95.46.211.230
+RemoteAddress    : 95.46.211.230
+RemotePort       : 22
+InterfaceAlias   : Wi-Fi
+SourceAddress    : 192.168.10.3
+TcpTestSucceeded : True
+
+
+
+
+---
+
+
+ComputerName           : 95.46.211.230
+RemoteAddress          : 95.46.211.230
+RemotePort             : 80
+InterfaceAlias         : Wi-Fi
+SourceAddress          : 192.168.10.3
+PingSucceeded          : True
+PingReplyDetails (RTT) : 101 ms
+TcpTestSucceeded       : False
+
+
+
+
+---
+
+
+ComputerName           : 95.46.211.230
+RemoteAddress          : 95.46.211.230
+RemotePort             : 443
+InterfaceAlias         : Wi-Fi
+SourceAddress          : 192.168.10.3
+PingSucceeded          : True
+PingReplyDetails (RTT) : 100 ms
+TcpTestSucceeded       : False
+
+
+
+

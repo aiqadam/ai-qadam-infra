@@ -1,0 +1,11 @@
+V09 — Live SSH smoke test
+Command: ssh ... 'whoami'
+Captured: 2026-07-08
+
+Output:
+root
+
+Verdict: PASS
+Note: live SSH to break-glass key (root@95.46.211.230 via the
+pro-data.tech-qa-instance_rsa.ppk key) still works. No regression from
+the UFW reload during Phase A3.

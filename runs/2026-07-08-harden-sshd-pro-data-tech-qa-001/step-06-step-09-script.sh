@@ -1,0 +1,1 @@
+sudo -n sshd -T 2>/dev/null | grep -Ei '^(passwordauthentication|permitrootlogin|maxauthtries|logingracetime|x11forwarding|clientaliveinterval|clientalivecountmax|allowgroups|kexalgorithms|ciphers|macs|pubkeyauthentication|kbdinteractiveauthentication) ' | sort

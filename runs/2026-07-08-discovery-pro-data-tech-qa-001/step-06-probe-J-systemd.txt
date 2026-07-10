@@ -1,0 +1,64 @@
+=== Probe J: systemd | date: 2026-07-08 | host: pro-data-tech-qa (95.46.211.230) ===
+  chrony.service              loaded active running chrony, an NTP client/server
+  cron.service                loaded active running Regular background program processing daemon
+  dbus.service                loaded active running D-Bus System Message Bus
+  fwupd.service               loaded active running Firmware update daemon
+  getty@tty1.service          loaded active running Getty on tty1
+  ModemManager.service        loaded active running Modem Manager
+  multipathd.service          loaded active running Device-Mapper Multipath Device Controller
+  networkd-dispatcher.service loaded active running Dispatcher daemon for systemd-networkd
+  polkit.service              loaded active running Authorization Manager
+  qemu-guest-agent.service    loaded active running QEMU Guest Agent
+  rsyslog.service             loaded active running System Logging Service
+  serial-getty@ttyS0.service  loaded active running Serial Getty on ttyS0
+  snapd.service               loaded active running Snap Daemon
+  ssh.service                 loaded active running OpenBSD Secure Shell server
+  systemd-journald.service    loaded active running Journal Service
+  systemd-logind.service      loaded active running User Login Management
+  systemd-networkd.service    loaded active running Network Management
+  systemd-resolved.service    loaded active running Network Name Resolution
+  systemd-udevd.service       loaded active running Rule-based Manager for Device Events and Files
+  udisks2.service             loaded active running Disk Manager
+  unattended-upgrades.service loaded active running Unattended Upgrades Shutdown
+  user@0.service              loaded active running User Manager for UID 0
+--- enabled non-default ---
+apparmor.service                       enabled enabled
+apport.service                         enabled enabled
+blk-availability.service               enabled enabled
+chrony.service                         enabled enabled
+cloud-config.service                   enabled enabled
+cloud-final.service                    enabled enabled
+cloud-init-local.service               enabled enabled
+cloud-init-main.service                enabled enabled
+cloud-init-network.service             enabled enabled
+console-setup.service                  enabled enabled
+cron.service                           enabled enabled
+dmesg.service                          enabled enabled
+e2scrub_reap.service                   enabled enabled
+finalrd.service                        enabled enabled
+getty@.service                         enabled enabled
+grub-initrd-fallback.service           enabled enabled
+grub2-common.service                   enabled enabled
+keyboard-setup.service                 enabled enabled
+lvm2-monitor.service                   enabled enabled
+ModemManager.service                   enabled enabled
+multipathd.service                     enabled enabled
+netplan-configure.service              enabled enabled
+networkd-dispatcher.service            enabled enabled
+open-iscsi.service                     enabled enabled
+open-vm-tools.service                  enabled enabled
+pollinate.service                      enabled enabled
+rsyslog.service                        enabled enabled
+secureboot-db.service                  enabled enabled
+setvtrgb.service                       enabled enabled
+snapd.apparmor.service                 enabled enabled
+snapd.autoimport.service               enabled enabled
+snapd.core-fixup.service               enabled enabled
+snapd.recovery-chooser-trigger.service enabled enabled
+snapd.seeded.service                   enabled enabled
+snapd.service                          enabled enabled
+snapd.system-shutdown.service          enabled enabled
+sshd-keygen.service                    enabled enabled
+sysstat.service                        enabled enabled
+systemd-networkd-wait-online.service   enabled enabled
+systemd-networkd.service               enabled enabled

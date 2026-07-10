@@ -1,0 +1,28 @@
+﻿=== Timestamp: 2026-07-08T17:52:25Z ===
+=== R9: live SSH probes from management workstation ===
+=== Two paths: operator (tvolodi@, ai-dala-infra key) and root break-glass ===
+
+=== Probe 1: tvolodi@95.46.211.230 (operator path) ===
+Command: ssh -i $env:USERPROFILE\.ssh\ai-dala-infra -o BatchMode=yes -o ConnectTimeout=10 tvolodi@95.46.211.230 'whoami; sudo -n ufw status verbose'
+Output:
+tvolodi
+SUDO_PROBE
+Status: active
+Logging: on (low)
+Default: deny (incoming), allow (outgoing), disabled (routed)
+New profiles: skip
+
+To                         Action      From
+--                         ------      ----
+22/tcp                     ALLOW IN    Anywhere                   # sshd - operator access T-0094 baseline
+22/tcp (v6)                ALLOW IN    Anywhere (v6)              # sshd - operator access T-0094 baseline
+
+
+=== Probe 2: root@95.46.211.230 (break-glass path) ===
+Command: ssh -i $env:USERPROFILE\.ssh\pro-data.tech-qa-instance_rsa.ppk -o BatchMode=yes -o ConnectTimeout=10 root@95.46.211.230 'whoami; sudo -n ufw status verbose | head -4'
+Output:
+root
+Status: active
+Logging: on (low)
+Default: deny (incoming), allow (outgoing), disabled (routed)
+New profiles: skip

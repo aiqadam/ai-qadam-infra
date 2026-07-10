@@ -1,0 +1,16 @@
+{
+  "error": {
+    "code": "invalid_input",
+    "details": {
+      "fields": [
+        {
+          "messages": [
+            "'apply_to' is required"
+          ],
+          "name": "apply_to"
+        }
+      ]
+    },
+    "message": "invalid input in field 'apply_to'"
+  }
+}

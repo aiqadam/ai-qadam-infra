@@ -1,0 +1,34 @@
+﻿=== Timestamp: 2026-07-08T17:50:22Z ===
+=== R4: arm rollback timer via setsid + sudo ===
+=== Previous run did this as tvolodi; /tmp/ufw-rollback.log was root-owned 644, redirect failed ===
+=== This run does it via sudo bash -c so redirect + future ufw disable succeed ===
+=== Command: scp + ssh ... bash /tmp/step-06-R4-arm-timer.sh ===
+=== Output ===
+=== cleaning old rollback files (sudo) ===
+ls: cannot access '/tmp/ufw-rollback*': No such file or directory
+(none — clean)
+
+=== ARMING rollback timer via setsid (sudo) ===
+Rollback PID (process group leader): 64714
+--- child processes ---
+    PID    PPID    PGID     SID COMMAND
+  64714   64713   64714   64714 bash
+    PID    PPID    PGID     SID COMMAND
+  64716   64714   64714   64714 sleep
+
+=== confirmation (as tvolodi) ===
+--- pgrep sleep ---
+64716 sleep 300
+--- pgrep /tmp/ufw-rollback (script and log paths) ---
+NO_UFWROLLBACK
+--- /tmp/ufw-rollback.pid ---
+64714
+--- /tmp/ufw-rollback files ---
+-rw-r--r-- 1 root root 0 Jul  8 17:50 /tmp/ufw-rollback.log
+-rw-r--r-- 1 root root 6 Jul  8 17:50 /tmp/ufw-rollback.pid
+--- /tmp/ufw-rollback.log ---
+(end of log)
+--- /tmp/ufw-rollback.sh ---
+cat: /tmp/ufw-rollback.sh: No such file or directory
+
+=== R4 DONE ===

@@ -1,0 +1,31 @@
+=== V08 sudoers.d/90-* stat + content (expect 440 root:root + '<user> ALL=(ALL) NOPASSWD: ALL') ===
+440 root:root /etc/sudoers.d/90-tvolodi
+  content: tvolodi ALL=(ALL) NOPASSWD: ALL
+440 root:root /etc/sudoers.d/90-viktor-d
+  content: viktor_d ALL=(ALL) NOPASSWD: ALL
+440 root:root /etc/sudoers.d/90-binali-r
+  content: binali_r ALL=(ALL) NOPASSWD: ALL
+
+=== V09 visudo -c ===
+/etc/sudoers: parsed OK
+exit code: 0
+
+=== V11 ssh-keygen viktor_d fingerprint ===
+256 SHA256:8oTED5gWeQhfZQc5eaM4O5NTz8Gh7MFu8DqFPSJVyTw viktor_d@ai-dala-infra-2026-06-27 (ED25519)
+
+=== V12 ssh-keygen binali_r fingerprint ===
+256 SHA256:kWyaexycQ2kSlbs4yZEJIEqERcTISFOZ+kBdjaSKyV8 binali_r@ai-dala-infra-2026-06-27 (ED25519)
+
+=== V13 provider key in /root/.ssh/authorized_keys ===
+1 /root/.ssh/authorized_keys
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCmSLU8TAU+yhDzjLekvWJ26dTOLKH/xl3qIUdr6ygWFE+lC/ux+6esx0YOH8uukHNm4hCsf+cdJqI8urud5YOOkXRdQ/ekjxt+FVGzmPuTEPIKp1rHmhW2RKPTggKBB1HpMKGbEL6XovTp/EuZQ9L+DCr45LuUE3+bnNH1LhSeE4DlQDXgko2TnNP7FXnX1ruFbRp17HklK43batxWXh3WpThU3iqnAlqp/V6ifGhNxD6XYR4DXX5WsK+m9p4WgjVz5E7GErABoGq2dH4n7nFz43x/80jEpkp5LLf63ISJ6xr/z5HzpBWej6NZkjRmO/JfCMcerg0RyohyG1bNkne7 rsa-key-20260707
+
+=== V14 passwd -S all three (expect L) ===
+tvolodi L 2026-07-08 0 99999 7 -1
+viktor_d L 2026-07-08 0 99999 7 -1
+binali_r L 2026-07-08 0 99999 7 -1
+
+=== V15 getent passwd all three (expect /bin/bash shell) ===
+tvolodi:x:1001:1001:Operator tvolodi - workstation user ed25519:/home/tvolodi:/bin/bash
+viktor_d:x:1002:1002:Operator viktor_d - ed25519:/home/viktor_d:/bin/bash
+binali_r:x:1003:1003:Operator binali_r - ed25519:/home/binali_r:/bin/bash

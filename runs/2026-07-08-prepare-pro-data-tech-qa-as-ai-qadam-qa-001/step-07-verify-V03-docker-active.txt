@@ -1,0 +1,8 @@
+V03 — docker.service active check
+Command: ssh ... 'systemctl is-active docker'
+Captured: 2026-07-08
+
+Output:
+active
+
+Verdict: PASS

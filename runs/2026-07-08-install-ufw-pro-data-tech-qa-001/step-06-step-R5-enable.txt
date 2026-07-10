@@ -1,0 +1,35 @@
+﻿=== Timestamp: 2026-07-08T17:50:38Z ===
+=== R5: re-enable UFW (<<< y here-string pattern) ===
+=== Command: scp + ssh ... bash /tmp/step-06-R5-enable.sh ===
+=== Output ===
+=== ufw status BEFORE enable ===
+Status: inactive
+
+=== enable UFW (with here-string y) ===
+Command may disrupt existing ssh connections. Proceed with operation (y|n)? Firewall is active and enabled on system startup
+
+=== ufw status AFTER enable ===
+Status: active
+
+To                         Action      From
+--                         ------      ----
+22/tcp                     ALLOW       Anywhere                   # sshd - operator access T-0094 baseline
+22/tcp (v6)                ALLOW       Anywhere (v6)              # sshd - operator access T-0094 baseline
+
+
+=== ufw status verbose AFTER enable ===
+Status: active
+Logging: on (low)
+Default: deny (incoming), allow (outgoing), disabled (routed)
+New profiles: skip
+
+To                         Action      From
+--                         ------      ----
+22/tcp                     ALLOW IN    Anywhere                   # sshd - operator access T-0094 baseline
+22/tcp (v6)                ALLOW IN    Anywhere (v6)              # sshd - operator access T-0094 baseline
+
+
+=== /etc/ufw/ufw.conf ENABLED line ===
+ENABLED=yes
+
+=== R5 DONE ===

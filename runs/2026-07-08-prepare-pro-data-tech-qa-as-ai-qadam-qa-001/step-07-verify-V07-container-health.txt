@@ -1,0 +1,19 @@
+V07 — Container health check
+First attempt: ssh ... 'docker ps --filter "name=ai-qadam-test" --format "{{.Names}} {{.Status}}"'
+Result: "docker: 'docker ps' accepts no arguments" — PowerShell stripped the
+inner double quotes inside the single-quoted SSH argument, leaving
+docker ps with a positional argument.
+
+Retry via base64 transport (matches executor's documented D2/E4 pattern):
+  $cmd = 'docker ps --filter "name=ai-qadam-test" --format "{{.Names}} {{.Status}}"'
+  $b64 = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($cmd))
+  ssh ... "echo $b64 | base64 -d | bash"
+
+Output:
+ai-qadam-test-db-1 Up 4 minutes (healthy)
+
+Verdict: PASS
+Note: container is Up and (healthy); matches design Phase E2 expectation.
+The 4-minute uptime aligns with container creation during this run (the
+executor brought the container up around 18:48 UTC; verification ran
+shortly after).

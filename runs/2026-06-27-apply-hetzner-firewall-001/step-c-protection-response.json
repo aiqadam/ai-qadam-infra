@@ -1,0 +1,18 @@
+﻿{
+ "action": {
+  "id": 638945111775820,
+  "command": "change_protection",
+  "started": "2026-06-27T07:30:55Z",
+  "finished": "2026-06-27T07:30:55Z",
+  "progress": 100,
+  "status": "success",
+  "resources": [
+   {
+    "id": 145542849,
+    "type": "server"
+   }
+  ],
+  "error": null
+ }
+}
+

@@ -1,0 +1,24 @@
+﻿=== Timestamp: 2026-07-08T17:48:38Z ===
+=== R1: cleanup-stale (detect leftover nohup/sleep/ufw-disable processes) ===
+=== Strategy: upload step-06-R1-cleanup-stale.sh to /tmp, execute via bash ===
+=== Command: scp + ssh ... bash /tmp/step-06-R1-cleanup-stale.sh ===
+=== Output ===
+=== sleep processes (exact basename, avoid self-match) ===
+NO_SLEEP
+=== /tmp/ufw-rollback processes (path-anchored) ===
+NO_UFWROLLBACK
+=== ufw-disable processes ===
+NO_UFWDISABLE
+=== /tmp/ufw-rollback files ===
+-rw-r--r-- 1 root root  0 Jul  8 17:36 /tmp/ufw-rollback.log
+-rwx------ 1 root root 60 Jul  8 17:36 /tmp/ufw-rollback.sh
+=== ufw status (real) ===
+Status: inactive
+=== ufw.conf ENABLED line ===
+ENABLED=no
+=== defensive kill (idempotent, expects 'no such process') ===
+=== post-kill pgrep ===
+NO_SLEEP
+NO_UFWROLLBACK
+NO_UFWDISABLE
+=== R1 DONE ===

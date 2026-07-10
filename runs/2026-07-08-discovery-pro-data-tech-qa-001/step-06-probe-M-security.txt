@@ -1,0 +1,12 @@
+=== Probe M: security | date: 2026-07-08 | host: pro-data-tech-qa (95.46.211.230) ===
+--- fail2ban ---
+fail2ban not present
+--- auditd ---
+auditd not present
+--- AppArmor ---
+/usr/sbin/aa-status
+apparmor module is loaded.
+179 profiles are loaded.
+103 profiles are in enforce mode.
+   /usr/bin/man
+   /usr/lib/snapd/snap-confine

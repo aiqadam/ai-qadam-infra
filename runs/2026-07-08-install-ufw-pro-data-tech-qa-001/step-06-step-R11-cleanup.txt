@@ -1,0 +1,40 @@
+﻿=== Timestamp: 2026-07-08T17:53:42Z ===
+=== R11: cleanup rollback PID/log files (keep backups) ===
+=== Command: scp + ssh ... bash /tmp/step-06-R11-cleanup.sh ===
+=== Output ===
+=== BEFORE cleanup ===
+-rw-r--r-- 1 root root 0 Jul  8 17:50 /tmp/ufw-rollback.log
+-rw-r--r-- 1 root root 6 Jul  8 17:50 /tmp/ufw-rollback.pid
+-rw-r--r-- 1 root root 1897 Dec  6  2025 /etc/default/ufw.bak
+total 44
+drwxr-xr-x  3 root root  260 Apr 21 16:30 .
+drwxrwxrwt 14 root root  620 Jul  8 17:53 ..
+-rw-r-----  1 root root 1126 Apr 21 16:30 after.init
+-rw-r-----  1 root root 1004 Dec  6  2025 after.rules
+
+=== removing /tmp/ufw-rollback.pid and /tmp/ufw-rollback.log ===
+rm exit: 0
+
+=== AFTER cleanup ===
+ls: cannot access '/tmp/ufw-rollback*': No such file or directory
+(all rollback artifacts removed)
+
+=== confirm backups still intact ===
+-rw-r--r-- 1 root root 1897 Dec  6  2025 /etc/default/ufw.bak
+total 44
+drwxr-xr-x  3 root root  260 Apr 21 16:30 .
+drwxrwxrwt 14 root root  580 Jul  8 17:53 ..
+-rw-r-----  1 root root 1126 Apr 21 16:30 after.init
+-rw-r-----  1 root root 1004 Dec  6  2025 after.rules
+
+=== final ufw status ===
+Status: active
+Logging: on (low)
+Default: deny (incoming), allow (outgoing), disabled (routed)
+New profiles: skip
+
+To                         Action      From
+--                         ------      ----
+22/tcp                     ALLOW IN    Anywhere                   # sshd - operator access T-0094 baseline
+
+=== R11 DONE ===

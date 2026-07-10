@@ -1,0 +1,65 @@
+=== Probe K: cron | date: 2026-07-08 | host: pro-data-tech-qa (95.46.211.230) ===
+--- per-user crontabs ---
+--- system crontabs ---
+/etc/cron.d:
+total 16
+drwxr-xr-x   2 root root 4096 Apr 21 16:28 .
+drwxr-xr-x 108 root root 4096 Jul  7 11:19 ..
+-rw-r--r--   1 root root  102 Nov  5  2025 .placeholder
+-rw-r--r--   1 root root  188 Feb 13 12:17 e2scrub_all
+
+/etc/cron.daily:
+total 32
+drwxr-xr-x   2 root root 4096 Apr 21 16:31 .
+drwxr-xr-x 108 root root 4096 Jul  7 11:19 ..
+-rw-r--r--   1 root root  102 Nov  5  2025 .placeholder
+-rwxr-xr-x   1 root root  376 Apr 13 11:51 apport
+-rwxr-xr-x   1 root root 1478 Apr  7 09:02 apt-compat
+-rwxr-xr-x   1 root root  123 Dec 16  2025 dpkg
+-rwxr-xr-x   1 root root  377 Dec  6  2025 logrotate
+-rwxr-xr-x   1 root root 1395 May  2  2025 man-db
+
+/etc/cron.hourly:
+total 12
+drwxr-xr-x   2 root root 4096 Apr 21 16:28 .
+drwxr-xr-x 108 root root 4096 Jul  7 11:19 ..
+-rw-r--r--   1 root root  102 Nov  5  2025 .placeholder
+
+/etc/cron.monthly:
+total 12
+drwxr-xr-x   2 root root 4096 Apr 21 16:28 .
+drwxr-xr-x 108 root root 4096 Jul  7 11:19 ..
+-rw-r--r--   1 root root  102 Nov  5  2025 .placeholder
+
+/etc/cron.weekly:
+total 16
+drwxr-xr-x   2 root root 4096 Apr 21 16:30 .
+drwxr-xr-x 108 root root 4096 Jul  7 11:19 ..
+-rw-r--r--   1 root root  102 Nov  5  2025 .placeholder
+-rwxr-xr-x   1 root root 1055 May  2  2025 man-db
+
+/etc/cron.yearly:
+total 12
+drwxr-xr-x   2 root root 4096 Apr 21 16:28 .
+drwxr-xr-x 108 root root 4096 Jul  7 11:19 ..
+-rw-r--r--   1 root root  102 Nov  5  2025 .placeholder
+--- systemd timers ---
+Wed 2026-07-08 03:16:20 UTC  2min 35s Wed 2026-07-08 02:29:28 UTC    44min ago fwupd-refresh.timer            fwupd-refresh.service
+Wed 2026-07-08 03:20:00 UTC      6min Wed 2026-07-08 03:10:06 UTC 3min 38s ago sysstat-collect.timer          sysstat-collect.service
+Wed 2026-07-08 06:00:26 UTC  2h 46min Tue 2026-07-07 12:03:52 UTC      15h ago apt-daily-upgrade.timer        apt-daily-upgrade.service
+Wed 2026-07-08 09:59:06 UTC        6h Tue 2026-07-07 19:17:38 UTC       7h ago apt-daily.timer                apt-daily.service
+Wed 2026-07-08 11:19:35 UTC        8h Tue 2026-07-07 11:19:35 UTC      15h ago update-notifier-download.timer update-notifier-download.service
+Wed 2026-07-08 11:29:25 UTC        8h Tue 2026-07-07 11:29:25 UTC      15h ago systemd-tmpfiles-clean.timer   systemd-tmpfiles-clean.service
+Wed 2026-07-08 11:41:26 UTC        8h Tue 2026-07-07 18:59:02 UTC       8h ago motd-news.timer                motd-news.service
+Wed 2026-07-08 11:59:45 UTC        8h Tue 2026-07-07 19:00:15 UTC       8h ago man-db.timer                   man-db.service
+Thu 2026-07-09 00:00:00 UTC       20h Wed 2026-07-08 00:00:03 UTC 3h 13min ago dpkg-db-backup.timer           dpkg-db-backup.service
+Thu 2026-07-09 00:00:00 UTC       20h Wed 2026-07-08 00:00:03 UTC 3h 13min ago sysstat-rotate.timer           sysstat-rotate.service
+Thu 2026-07-09 00:07:00 UTC       20h Wed 2026-07-08 00:07:03 UTC  3h 6min ago sysstat-summary.timer          sysstat-summary.service
+Thu 2026-07-09 00:54:26 UTC       21h Wed 2026-07-08 00:52:01 UTC 2h 21min ago logrotate.timer                logrotate.service
+Fri 2026-07-10 01:23:31 UTC 1 day 22h Tue 2026-05-05 05:20:50 UTC            - update-notifier-motd.timer     update-notifier-motd.service
+Sun 2026-07-12 03:10:10 UTC    3 days Tue 2026-07-07 11:15:11 UTC      15h ago xfs_scrub_all.timer            xfs_scrub_all.service
+Sun 2026-07-12 03:10:46 UTC    3 days Tue 2026-07-07 11:15:08 UTC      15h ago e2scrub_all.timer              e2scrub_all.service
+Mon 2026-07-13 00:19:22 UTC    4 days Tue 2026-07-07 12:22:42 UTC      14h ago fstrim.timer                   fstrim.service
+-                                   - -                                      - apport-autoreport.timer        apport-autoreport.service
+-                                   - -                                      - snapd.snap-repair.timer        snapd.snap-repair.service
+-                                   - -                                      - ua-timer.timer                 ua-timer.service

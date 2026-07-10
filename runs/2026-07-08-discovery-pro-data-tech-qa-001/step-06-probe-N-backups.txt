@@ -1,0 +1,7 @@
+=== Probe N: backups | date: 2026-07-08 | host: pro-data-tech-qa (95.46.211.230) ===
+--- Hetzner cloud-agent / snapshot hooks ---
+  lvm2-monitor.service                                                                                      loaded active exited    Monitoring of LVM2 mirrors, snapshots etc. using dmeventd or progress polling
+  dpkg-db-backup.timer                                                                                      loaded active waiting   Daily dpkg database backup timer
+--- Restic / borg / duplicity ---
+--- common backup paths ---
+/var/backups

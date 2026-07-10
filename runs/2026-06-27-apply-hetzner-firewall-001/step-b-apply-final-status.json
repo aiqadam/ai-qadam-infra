@@ -1,0 +1,21 @@
+﻿{
+    "action": {
+        "id": 638945109182443,
+        "status": "success",
+        "command": "apply_firewall",
+        "progress": 100,
+        "started": "2026-06-27T07:30:36Z",
+        "finished": "2026-06-27T07:30:40Z",
+        "error": null,
+        "resources": [
+            {
+                "id": 11204449,
+                "type": "firewall"
+            },
+            {
+                "id": 145542849,
+                "type": "server"
+            }
+        ]
+    }
+}

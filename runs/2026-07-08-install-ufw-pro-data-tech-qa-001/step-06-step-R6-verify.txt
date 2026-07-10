@@ -1,0 +1,65 @@
+﻿=== Timestamp: 2026-07-08T17:50:52Z ===
+=== R6: verify UFW active, systemd enabled, iptables/ip6tables populated ===
+=== Command: scp + ssh ... bash /tmp/step-06-R6-verify.sh ===
+=== Output ===
+=== ufw status verbose ===
+Status: active
+Logging: on (low)
+Default: deny (incoming), allow (outgoing), disabled (routed)
+New profiles: skip
+
+To                         Action      From
+--                         ------      ----
+22/tcp                     ALLOW IN    Anywhere                   # sshd - operator access T-0094 baseline
+22/tcp (v6)                ALLOW IN    Anywhere (v6)              # sshd - operator access T-0094 baseline
+
+
+=== ufw status numbered ===
+Status: active
+
+     To                         Action      From
+     --                         ------      ----
+[ 1] 22/tcp                     ALLOW IN    Anywhere                   # sshd - operator access T-0094 baseline
+[ 2] 22/tcp (v6)                ALLOW IN    Anywhere (v6)              # sshd - operator access T-0094 baseline
+
+
+=== systemctl is-enabled ufw ===
+enabled
+
+=== systemctl is-active ufw ===
+active
+
+=== iptables INPUT policy + ufw-before-input chain (head) ===
+Chain INPUT (policy DROP 14 packets, 568 bytes)
+ pkts bytes target     prot opt in     out     source               destination         
+ 2163  340K ufw-before-logging-input  all  --  *      *       0.0.0.0/0            0.0.0.0/0           
+ 2163  340K ufw-before-input  all  --  *      *       0.0.0.0/0            0.0.0.0/0           
+ 1944  308K ufw-after-input  all  --  *      *       0.0.0.0/0            0.0.0.0/0           
+ 1783  270K ufw-after-logging-input  all  --  *      *       0.0.0.0/0            0.0.0.0/0           
+ 1783  270K ufw-reject-input  all  --  *      *       0.0.0.0/0            0.0.0.0/0           
+ 1783  270K ufw-track-input  all  --  *      *       0.0.0.0/0            0.0.0.0/0           
+--- ufw-before-input ---
+Chain ufw-before-input (1 references)
+ pkts bytes target     prot opt in     out     source               destination         
+    0     0 ACCEPT     all  --  lo     *       0.0.0.0/0            0.0.0.0/0           
+   57  9034 ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate RELATED,ESTABLISHED
+    0     0 ufw-logging-deny  all  --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate INVALID
+    0     0 DROP       all  --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate INVALID
+    0     0 ACCEPT     icmp --  *      *       0.0.0.0/0            0.0.0.0/0            icmptype 3
+    0     0 ACCEPT     icmp --  *      *       0.0.0.0/0            0.0.0.0/0            icmptype 11
+    0     0 ACCEPT     icmp --  *      *       0.0.0.0/0            0.0.0.0/0            icmptype 12
+    0     0 ACCEPT     icmp --  *      *       0.0.0.0/0            0.0.0.0/0            icmptype 8
+
+=== ip6tables (head) ===
+Chain INPUT (policy DROP 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination         
+   26  5252 ufw6-before-logging-input  all  --  *      *       ::/0                 ::/0                
+   26  5252 ufw6-before-input  all  --  *      *       ::/0                 ::/0                
+   26  5252 ufw6-after-input  all  --  *      *       ::/0                 ::/0                
+   26  5252 ufw6-after-logging-input  all  --  *      *       ::/0                 ::/0                
+   26  5252 ufw6-reject-input  all  --  *      *       ::/0                 ::/0                
+   26  5252 ufw6-track-input  all  --  *      *       ::/0                 ::/0                
+
+Chain FORWARD (policy DROP 0 packets, 0 bytes)
+
+=== R6 DONE ===

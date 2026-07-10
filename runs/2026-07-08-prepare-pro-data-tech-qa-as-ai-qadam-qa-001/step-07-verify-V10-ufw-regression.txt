@@ -1,0 +1,28 @@
+V10 — UFW regression check
+Command: ssh ... 'sudo ufw status verbose | head -5'
+Captured: 2026-07-08
+
+Output:
+Status: active
+Logging: on (low)
+Default: deny (incoming), allow (outgoing), allow (routed)
+New profiles: skip
+
+Verdict: PASS
+Note:
+- Status: active (PASS — matches design Phase A3 acceptance).
+- Default deny (incoming), allow (outgoing) (PASS — pre-existing config
+  from T-0094 baseline unchanged).
+- Default "allow (routed)" (FORWARD policy) — this is now ACCEPT because
+  Phase A2 flipped DEFAULT_FORWARD_POLICY to ACCEPT and `ufw reload` was
+  run. UFW shows "allow (routed)" when FORWARD=ACCEPT (was "disabled
+  (routed)" before T-0090 because IP forwarding was off). This is the
+  expected post-T0090 state — Phase A3 explicitly predicted FORWARD would
+  show "disabled (routed)" until IP forwarding was enabled, and indeed it
+  is now "allow (routed)" because Docker install (Phase B) turned on
+  /proc/sys/net/ipv4/ip_forward=1.
+
+No 22/tcp rule visible in head -5 — but `ufw status verbose | head -5`
+intentionally truncates above the rule list; not a regression. (A full
+`ufw status` would show the v4+v6 22/tcp ALLOW rules installed by T-0094;
+executor confirmed those during Phase A3.)

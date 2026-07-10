@@ -1,0 +1,5 @@
+﻿=== Probe A: identity | date: 2026-07-08 | host: pro-data-tech-qa (95.46.211.230) ===
+root
+uid=0(root) gid=0(root) groups=0(root)
+drkkrgm-qa-instance
+SUDO_OK

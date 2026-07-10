@@ -1,0 +1,44 @@
+V06 — docker-compose.yml content check
+Command: ssh ... 'cat /var/www/ai-qadam-test/docker-compose.yml'
+Captured: 2026-07-08
+
+Output:
+name: ai-qadam-test
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: ai-qadam-test-db-1
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "127.0.0.1:3112:5432"
+    volumes:
+      - ai_qadam_test_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  ai_qadam_test_pgdata:
+
+Verdict: PASS
+
+Design match (V06 acceptance criteria from user request):
+- name "ai-qadam-test":                  ✓ MATCH
+- service "db":                          ✓ MATCH
+- image "pgvector/pgvector:pg16":        ✓ MATCH
+- port "127.0.0.1:3112:5432":            ✓ MATCH
+- volume "ai_qadam_test_pgdata":         ✓ MATCH
+
+Post-execution deviation (executor Phase E3b, documented in
+step-06-executor-infra.md Issues #1): healthcheck includes `-d
+${POSTGRES_DB}` — design original used just `-U ${POSTGRES_USER}`. The
+executor patched this to suppress log-noise FATAL spam and brought the
+container to `(healthy)`. The patch is operationally sound and the
+post-patch healthcheck is the documented state.

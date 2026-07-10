@@ -1,0 +1,30 @@
+﻿Chain INPUT (policy DROP 26 packets, 5252 bytes)
+ pkts bytes target     prot opt in     out     source               destination         
+   52 10504 ufw6-before-logging-input  all  --  *      *       ::/0                 ::/0                
+   52 10504 ufw6-before-input  all  --  *      *       ::/0                 ::/0                
+   52 10504 ufw6-after-input  all  --  *      *       ::/0                 ::/0                
+   52 10504 ufw6-after-logging-input  all  --  *      *       ::/0                 ::/0                
+   52 10504 ufw6-reject-input  all  --  *      *       ::/0                 ::/0                
+   52 10504 ufw6-track-input  all  --  *      *       ::/0                 ::/0                
+
+Chain FORWARD (policy DROP 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination         
+    0     0 ufw6-before-logging-forward  all  --  *      *       ::/0                 ::/0                
+    0     0 ufw6-before-forward  all  --  *      *       ::/0                 ::/0                
+    0     0 ufw6-after-forward  all  --  *      *       ::/0                 ::/0                
+    0     0 ufw6-after-logging-forward  all  --  *      *       ::/0                 ::/0                
+    0     0 ufw6-reject-forward  all  --  *      *       ::/0                 ::/0                
+    0     0 ufw6-track-forward  all  --  *      *       ::/0                 ::/0                
+
+Chain OUTPUT (policy ACCEPT 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination         
+    1    56 ufw6-before-logging-output  all  --  *      *       ::/0                 ::/0                
+    1    56 ufw6-before-output  all  --  *      *       ::/0                 ::/0                
+    1    56 ufw6-after-output  all  --  *      *       ::/0                 ::/0                
+    1    56 ufw6-after-logging-output  all  --  *      *       ::/0                 ::/0                
+    1    56 ufw6-reject-output  all  --  *      *       ::/0                 ::/0                
+    1    56 ufw6-track-output  all  --  *      *       ::/0                 ::/0                
+
+Chain ufw6-after-forward (1 references)
+ pkts bytes target     prot opt in     out     source               destination         
+

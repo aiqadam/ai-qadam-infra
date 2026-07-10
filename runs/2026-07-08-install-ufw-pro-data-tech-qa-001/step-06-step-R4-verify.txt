@@ -1,0 +1,13 @@
+﻿=== Timestamp: 2026-07-08T17:50:00Z ===
+=== R4 followup: what actually happened? ===
+--- pgrep sleep ---
+--- pgrep setsid ---
+64556 bash -c echo --- pgrep sleep ---; pgrep -x sleep -a 2>&1; echo --- pgrep setsid ---; pgrep -af setsid 2>&1; echo --- pgrep 64454 ---; ps -p 64454 2>&1; echo --- pgrep -f ufw ---; pgrep -af ufw 2>&1; echo --- /tmp/ufw-rollback files ---; ls -la /tmp/ufw-rollback* 2>&1
+--- pgrep 64454 ---
+    PID TTY          TIME CMD
+--- pgrep -f ufw ---
+64556 bash -c echo --- pgrep sleep ---; pgrep -x sleep -a 2>&1; echo --- pgrep setsid ---; pgrep -af setsid 2>&1; echo --- pgrep 64454 ---; ps -p 64454 2>&1; echo --- pgrep -f ufw ---; pgrep -af ufw 2>&1; echo --- /tmp/ufw-rollback files ---; ls -la /tmp/ufw-rollback* 2>&1
+--- /tmp/ufw-rollback files ---
+-rw-r--r-- 1 root    root     0 Jul  8 17:36 /tmp/ufw-rollback.log
+-rw-rw-r-- 1 tvolodi tvolodi  6 Jul  8 17:49 /tmp/ufw-rollback.pid
+-rwx------ 1 root    root    60 Jul  8 17:36 /tmp/ufw-rollback.sh

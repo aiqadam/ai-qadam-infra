@@ -1,0 +1,17 @@
+﻿=== Probe E: sshd | date: 2026-07-08 | host: pro-data-tech-qa (95.46.211.230) ===
+clientaliveinterval 0
+logingracetime 120
+maxauthtries 6
+passwordauthentication yes
+permitemptypasswords no
+permitrootlogin yes
+port 22
+pubkeyauthentication yes
+usedns no
+x11forwarding yes
+total 12
+drwxr-xr-x 2 root root 4096 May  5 05:21 .
+drwxr-xr-x 4 root root 4096 Jul  7 11:17 ..
+-rw-r--r-- 1 root root   27 May  5 05:21 60-cloudimg-settings.conf
+---
+PasswordAuthentication yes

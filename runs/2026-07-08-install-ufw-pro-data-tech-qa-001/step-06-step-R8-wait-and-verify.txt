@@ -1,0 +1,37 @@
+﻿=== Timestamp: 2026-07-08T17:51:58Z ===
+=== R8: wait 10s and verify rollback timer is truly dead ===
+=== This is the key proof that kill -- -PGID worked (vs previous run's bug) ===
+=== Command: scp + ssh ... bash /tmp/step-06-R8-wait-and-verify.sh ===
+=== Output ===
+=== sleeping 10 seconds to confirm timer is truly dead ===
+=== awake ===
+
+=== sleep processes (must be empty) ===
+NO_SLEEP
+
+=== /tmp/ufw-rollback processes (must be empty) ===
+NO_UFWROLLBACK
+
+=== ufw disable processes (must be empty) ===
+NO_UFWDISABLE
+
+=== ufw status (MUST show Status: active) ===
+Status: active
+Logging: on (low)
+Default: deny (incoming), allow (outgoing), disabled (routed)
+New profiles: skip
+
+To                         Action      From
+--                         ------      ----
+22/tcp                     ALLOW IN    Anywhere                   # sshd - operator access T-0094 baseline
+22/tcp (v6)                ALLOW IN    Anywhere (v6)              # sshd - operator access T-0094 baseline
+
+
+=== /etc/ufw/ufw.conf ENABLED line (MUST be ENABLED=yes) ===
+ENABLED=yes
+
+=== /tmp/ufw-rollback.log (should still be empty - no ufw disable fired) ===
+-rw-r--r-- 1 root root 0 Jul  8 17:50 /tmp/ufw-rollback.log
+(end of log)
+
+=== R8 DONE ===

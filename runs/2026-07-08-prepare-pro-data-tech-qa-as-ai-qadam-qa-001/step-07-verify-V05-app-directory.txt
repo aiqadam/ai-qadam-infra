@@ -1,0 +1,23 @@
+V05 — /var/www/ai-qadam-test/ directory listing
+Command: ssh ... 'ls -la /var/www/ai-qadam-test/'
+Captured: 2026-07-08
+
+Output:
+total 16
+drwxr-xr-x 2 tvolodi tvolodi 4096 Jul  8 18:48 .
+drwxr-xr-x 3 root    root    4096 Jul  8 18:43 ..
+-rw------- 1 tvolodi tvolodi   90 Jul  8 18:45 .env
+-rw-r--r-- 1 tvolodi tvolodi    0 Jul  8 18:44 .placeholder
+-rw-r--r-- 1 tvolodi tvolodi  565 Jul  8 18:48 docker-compose.yml
+
+Verdict: PASS
+Note:
+- Owner tvolodi:tvolodi on all files (PASS).
+- .env present (mode 600, 90 B) (PASS — design expected).
+- docker-compose.yml present (mode 644, 565 B) (PASS — design expected).
+- .placeholder still present (0 B) — harmless residue from executor's
+  Phase C2 smoke test; not in design but harmless.
+- Note: executor reported compose file as 547 B; actual on-host is 565 B
+  (the +18 B is the designer's healthcheck patch `-d ${POSTGRES_DB}`
+  applied by executor's E3b step — documented deviation in
+  step-06-executor-infra.md "Issues / risks" #1).

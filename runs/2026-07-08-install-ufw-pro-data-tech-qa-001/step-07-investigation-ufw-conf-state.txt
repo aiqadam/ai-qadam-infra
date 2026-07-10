@@ -1,0 +1,67 @@
+﻿# step-07-investigation-ufw-conf-state.txt
+# Independent re-verification by execution-validator (2026-07-08)
+# Probe: /etc/ufw/ufw.conf content + mtime + cross-reference with rollback timer
+# Captured by execution-validator; not executor output
+
+/etc/ufw/ufw.conf current content (excerpt):
+  ENABLED=no
+  LOGLEVEL=low
+
+File mtime: 2026-07-08 17:41:24 UTC
+File birth: 2026-04-21 16:32:32 UTC (Ubuntu 26.04 package default)
+
+Cross-reference:
+  /tmp/ufw-rollback.sh (60 bytes, content: sleep 300 && /usr/sbin/ufw disable)
+    mtime: 2026-07-08 17:36:31 UTC
+  Executor step-04a armed at 17:36:xx (PID 61159 reported)
+  Executor step-09 (verify) ran at ~17:37-17:41
+  ufw.conf modified at 17:41:24 (NOT the original Birth 2026-04-21)
+  /tmp/ufw-rollback.log size: 0 bytes (script never wrote anything, which
+    is consistent with the script sleeping for 5 minutes then exiting silently
+    after the single ufw disable command -- since nohup discards stdout/stderr
+    by default but the redirection to /tmp/ufw-rollback.log was applied
+    so 'disable' output if any would have been captured. Empty log suggests
+    disable did not actually run via THIS script, OR its output was discarded.
+
+Timeline reconstruction:
+  17:36:31   rollback.sh created (step 4a)
+  17:36:xx   rollback.sh backgrounded (PID 61159) - 5 min timer to 17:41:31
+  17:37:08   ufw --force reset auto-backups created (.20260708_173708)
+  17:37:xx   ufw allow 22/tcp added
+  17:41:xx   ufw enable attempted (would set ENABLED=yes)
+  17:41:24   /etc/ufw/ufw.conf modified (ENABLED=yes)
+  17:41:31   rollback.sh sleep expires; ufw disable fires (sets ENABLED=no)
+  17:41:31   ufw.conf modified again (or this IS the 17:41:24 modification
+             and the original Birth was the cloud-init ENABLED=no)
+  After     pgrep returns empty (rollback script exited after running disable)
+
+ALTERNATIVE INTERPRETATION:
+  The executor's step-11 verification ran successfully (capturing Status: active
+  per step-06's step-09-verify.txt which was 15328 bytes including extensive
+  output). The rollback timer fired AFTER step-11 verification completed,
+  while the executor was wrapping up step-12 (live SSH) and step-13 (port
+  probe). The executor's 'kill 61159' may have happened at the wrong moment
+  (before the kill, or against a PID that no longer existed), or the script
+  had already spawned its sleep+disable.
+
+Current observable state:
+  - ufw.conf ENABLED=no (the canonical state file)
+  - sudo ufw status -> Status: inactive
+  - iptables policies ACCEPT (UFW chains loaded but bypassed)
+  - Rule files user.rules and user6.rules contain the 22/tcp allow rule
+    (committed but not applied because UFW is disabled)
+  - All 6 auto-backups from step 7 reset exist at /etc/ufw/*.20260708_173708
+
+ROOT CAUSE: The nohup-based 5-minute rollback timer fired AFTER step-11
+verification. This is the approved-plan nohup fallback (since atd was
+not-found on this host). The fallback is documented as: 'kill <pid>
+cancellation in step 10 requires recording the exact PID from step 4'.
+The executor recorded PID 61159 and attempted to kill it, but the
+actual sequence was likely:
+  (a) nohup bash -c 'sleep 300 && ufw disable' was forked; bash's PID
+      is 61159 but the sleep process is a child
+  (b) kill 61159 killed bash but NOT the child sleep
+  (c) sleep continued, fired ufw disable at +5min
+OR
+  (a) The executor's kill was issued AFTER the 5-min window elapsed
+      (step-09 verify alone could take several minutes)

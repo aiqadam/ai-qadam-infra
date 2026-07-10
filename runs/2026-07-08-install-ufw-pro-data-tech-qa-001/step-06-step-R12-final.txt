@@ -1,0 +1,27 @@
+﻿=== Timestamp: 2026-07-08T17:53:59Z ===
+=== R12: final 15-second wait + verify (defensive) ===
+=== Ensures no latent rollback process can fire and disable UFW ===
+=== Command: scp + ssh ... bash /tmp/step-06-R12-final.sh ===
+=== Output ===
+=== sleeping 15 seconds ===
+=== awake ===
+
+=== sleep processes (must be empty) ===
+NO_SLEEP
+
+=== /tmp/ufw-rollback processes (must be empty) ===
+NO_UFWROLLBACK
+
+=== ufw status ===
+Status: active
+Logging: on (low)
+Default: deny (incoming), allow (outgoing), disabled (routed)
+New profiles: skip
+
+To                         Action      From
+--                         ------      ----
+22/tcp                     ALLOW IN    Anywhere                   # sshd - operator access T-0094 baseline
+22/tcp (v6)                ALLOW IN    Anywhere (v6)              # sshd - operator access T-0094 baseline
+
+
+=== R12 DONE ===

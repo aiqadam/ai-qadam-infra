@@ -1,0 +1,17 @@
+﻿=== Timestamp: 2026-07-08T17:51:40Z ===
+=== R7a: post-cancel sanity (confirm UFW still active, no stragglers) ===
+=== Command: scp + ssh ... bash /tmp/step-06-R7a-sanity.sh ===
+=== Output ===
+=== ufw status (head) ===
+Status: active
+Logging: on (low)
+Default: deny (incoming), allow (outgoing), disabled (routed)
+New profiles: skip
+
+=== sleep processes ===
+NO_SLEEP
+
+=== /tmp/ufw-rollback processes ===
+NO_UFWROLLBACK
+
+=== R7a DONE ===

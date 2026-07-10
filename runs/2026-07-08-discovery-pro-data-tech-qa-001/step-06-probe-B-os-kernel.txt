@@ -1,0 +1,19 @@
+﻿=== Probe B: os-kernel | date: 2026-07-08 | host: pro-data-tech-qa (95.46.211.230) ===
+PRETTY_NAME="Ubuntu 26.04 LTS"
+NAME="Ubuntu"
+VERSION_ID="26.04"
+VERSION="26.04 LTS (Resolute Raccoon)"
+VERSION_CODENAME=resolute
+ID=ubuntu
+ID_LIKE=debian
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+UBUNTU_CODENAME=resolute
+LOGO=ubuntu-logo
+Linux drkkrgm-qa-instance 7.0.0-14-generic #14-Ubuntu SMP PREEMPT_DYNAMIC Mon Apr 13 11:09:53 UTC 2026 x86_64 GNU/Linux
+Distributor ID:	Ubuntu
+Description:	Ubuntu 26.04 LTS
+Release:	26.04
+Codename:	resolute

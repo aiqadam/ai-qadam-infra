@@ -1,0 +1,46 @@
+# Secrets — never commit
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+*.env
+.env
+.env.*
+!.env.example
+*credentials*
+*token*
+!*token*.md
+!*token*-inventory.md
+/landscape/secrets-inventory.md
+/landscape/secrets-inventory-*.md
+
+# Editor / OS noise
+.DS_Store
+Thumbs.db
+.vscode/settings.json
+.vscode/launch.json
+.idea/
+*.swp
+*.swo
+*~
+
+# Local Claude/Copilot scratch state (project files under .claude/agents/ are tracked;
+# only ignore anything matching personal/local scratch patterns if they appear)
+.claude/local/
+.claude/cache/
+
+# Local snapshots of working files (used as ad-hoc rollback safety net)
+Backup/
+
+# Logs and temp
+*.log
+tmp/
+.tmp/
+temp/
+
+# Python / Node / Go scratch — only relevant if tooling lands here later
+__pycache__/
+*.pyc
+node_modules/
+dist/
+build/

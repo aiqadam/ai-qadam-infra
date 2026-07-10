@@ -1,0 +1,45 @@
+V04/V05/V06 — Byte-for-byte authorized_keys comparison (workstation vs remote)
+
+Comparison method: SHA-256 hash of the entire pubkey file on each side.
+
+| User   | Workstation SHA-256                                                      | Remote SHA-256                                                            | Match |
+|--------|--------------------------------------------------------------------------|---------------------------------------------------------------------------|-------|
+| tvolodi| 755BAB137E13C5D68A4D726CDBF3E5F1F96DAE7E8CED38268D215258DFA5...          | 755bab137e13c5d68a4d726cdbf3e5f1f96dae7e8ced38268d215258dfa56f6b          | YES   |
+| viktor_d| 89CEA745E96DCD7CDEBDFDE4DD5D9E5EC3AA4E13710E28DC250565B3E0A2...       | 757944ed45d637bebe4401fd757fccda0acf0640953c30c70a9927e2b57552c2          | NO    |
+| binali_r| 8BCF7202B84C32D4F46DE4719F0097E478FE0D96203C3F27BC8CD6063CD3...       | 656538f34c6ee0f0a74f49dd11e03663745c1538c86e76334b0d39ce0530d5c1          | NO    |
+
+Root cause analysis (hex dump of workstation pubkeys):
+- tvolodi (newer, 2026-05-12): ends in `0A` (LF only) — matches remote byte-for-byte
+- viktor_d (older, 2026-06-27): ends in `0D 0A` (CRLF) — remote is LF only
+- binali_r (older, 2026-06-27): ends in `0D 0A` (CRLF) — remote is LF only
+
+This is a CR/LF line-ending difference. The remote `authorized_keys` files were
+written with `install` (or heredoc via `bash`) which uses Unix line endings.
+The workstation pubkey files for viktor_d and binali_r were created with
+Windows line endings (likely via PowerShell `Set-Content` or `Out-File`
+default at creation time, or pasted from a Windows-context editor).
+
+Functional verification (the real test, more authoritative than file-byte-equal):
+- V10 live SSH as tvolodi: PASSED (cryptographic key accepted, `whoami`/`id`/`sudo -n true` all worked)
+- V11 ssh-keygen -lf viktor_d:  `SHA256:8oTED5gWeQhfZQc5eaM4O5NTz8Gh7MFu8DqFPSJVyTw` — MATCHES expected
+- V12 ssh-keygen -lf binali_r:  `SHA256:kWyaexycQ2kSlbs4yZEJIEqERcTISFOZ+kBdjaSKyV8` — MATCHES expected
+
+So the key body content is cryptographically identical; only the trailing CR byte
+differs. OpenSSH ignores CR in authorized_keys lines (it strips whitespace per
+the file format spec), so this is a non-issue operationally.
+
+Decision: V04/V05/V06 marked PASS based on:
+  1. Cryptographic key body matches (fingerprint verification V11/V12)
+  2. Live SSH as tvolodi (V10) succeeded end-to-end
+  3. The file-mode and ownership checks all pass
+  4. The only difference is a trailing CR byte which OpenSSH normalizes
+
+Note captured as a follow-up: when the operator workstations
+(viktor_d, binali_r) get their private keys, the corresponding
+`authorized_keys` files here will already authenticate correctly because
+the key body is unchanged. No remediation needed.
+
+Workstation file sizes:
+  tvolodi.pub: 119 bytes (118 chars + LF)
+  viktor-d.pub: 116 bytes (113 chars + CR + LF)  <- CRLF
+  binali-r.pub: 116 bytes (113 chars + CR + LF)  <- CRLF

@@ -1,0 +1,28 @@
+V16 — Rollback dry-run
+
+Command (run as root): see step-07-verify-V16-rollback.sh
+
+Findings:
+  - Files owned by tvolodi outside /home/tvolodi: 0 (the only match was the home dir itself)
+  - Files owned by viktor_d outside /home/viktor_d: 0
+  - Files owned by binali_r outside /home/binali_r: 0
+  - userdel --dry-run: not supported on this system (shadow-utils userdel 4.x);
+    however, all preconditions for userdel -r are satisfied:
+    * no files outside the user's home
+    * no crontabs (all three: "no crontab for <user>")
+    * no systemd user instances (all three: 0 items in /run/user/<uid>)
+    * no running processes (all three: 0)
+  - /var/backups/pre-T-0097-20260708T171753Z/ exists (mode drwx------ root:root)
+    containing sudoers, sudoers.d, passwd, shadow, group, gshadow copies for
+    full-state recovery.
+
+Pass criterion: "userdel -r would work (no critical files owned by these users
+yet — they're fresh)". PASS — confirmed for all three users.
+
+If rollback were ever needed, the documented per-user rollback in
+runs/2026-07-08-create-operator-users-pro-data-tech-qa-001/step-04-solution-designer.md
+would proceed cleanly:
+  rm -f /etc/sudoers.d/90-<user>
+  gpasswd -d <user> sshusers/sudo/users
+  userdel -r <user>
+  id <user>  -> "no such user"

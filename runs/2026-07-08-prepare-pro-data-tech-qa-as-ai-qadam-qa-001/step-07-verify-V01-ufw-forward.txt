@@ -1,0 +1,10 @@
+V01 — UFW DEFAULT_FORWARD_POLICY check
+Command: ssh ... 'grep DEFAULT_FORWARD_POLICY /etc/default/ufw'
+Captured: 2026-07-08
+
+Output:
+DEFAULT_FORWARD_POLICY="ACCEPT"
+
+Verdict: PASS
+Note: matches design Phase A2 (DROP→ACCEPT flip). Original backup at
+/etc/default/ufw.pre-T0090.20260708T184046Z.bak preserved per executor handoff.

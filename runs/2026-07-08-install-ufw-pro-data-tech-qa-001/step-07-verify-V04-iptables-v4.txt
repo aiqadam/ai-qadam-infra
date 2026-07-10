@@ -1,0 +1,30 @@
+﻿Chain INPUT (policy DROP 468 packets, 22986 bytes)
+ pkts bytes target     prot opt in     out     source               destination         
+ 3781  589K ufw-before-logging-input  all  --  *      *       0.0.0.0/0            0.0.0.0/0           
+ 3781  589K ufw-before-input  all  --  *      *       0.0.0.0/0            0.0.0.0/0           
+ 2829  444K ufw-after-input  all  --  *      *       0.0.0.0/0            0.0.0.0/0           
+ 2237  292K ufw-after-logging-input  all  --  *      *       0.0.0.0/0            0.0.0.0/0           
+ 2237  292K ufw-reject-input  all  --  *      *       0.0.0.0/0            0.0.0.0/0           
+ 2237  292K ufw-track-input  all  --  *      *       0.0.0.0/0            0.0.0.0/0           
+
+Chain FORWARD (policy DROP 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination         
+    0     0 ufw-before-logging-forward  all  --  *      *       0.0.0.0/0            0.0.0.0/0           
+    0     0 ufw-before-forward  all  --  *      *       0.0.0.0/0            0.0.0.0/0           
+    0     0 ufw-after-forward  all  --  *      *       0.0.0.0/0            0.0.0.0/0           
+    0     0 ufw-after-logging-forward  all  --  *      *       0.0.0.0/0            0.0.0.0/0           
+    0     0 ufw-reject-forward  all  --  *      *       0.0.0.0/0            0.0.0.0/0           
+    0     0 ufw-track-forward  all  --  *      *       0.0.0.0/0            0.0.0.0/0           
+
+Chain OUTPUT (policy ACCEPT 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination         
+ 2438  404K ufw-before-logging-output  all  --  *      *       0.0.0.0/0            0.0.0.0/0           
+ 2438  404K ufw-before-output  all  --  *      *       0.0.0.0/0            0.0.0.0/0           
+ 1466  235K ufw-after-output  all  --  *      *       0.0.0.0/0            0.0.0.0/0           
+ 1466  235K ufw-after-logging-output  all  --  *      *       0.0.0.0/0            0.0.0.0/0           
+ 1466  235K ufw-reject-output  all  --  *      *       0.0.0.0/0            0.0.0.0/0           
+ 1466  235K ufw-track-output  all  --  *      *       0.0.0.0/0            0.0.0.0/0           
+
+Chain ufw-after-forward (1 references)
+ pkts bytes target     prot opt in     out     source               destination         
+

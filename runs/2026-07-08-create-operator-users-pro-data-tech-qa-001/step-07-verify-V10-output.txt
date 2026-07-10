@@ -1,0 +1,18 @@
+V10 — Live SSH as tvolodi from the management workstation
+
+Command:
+  ssh -i "C:\Users\tvolo\.ssh\ai-dala-infra" -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new tvolodi@95.46.211.230 'whoami && id && sudo -n true && echo SUDO_OK'
+
+Output:
+  tvolodi
+  uid=1001(tvolodi) gid=1001(tvolodi) groups=1001(tvolodi),27(sudo),100(users),1000(sshusers)
+  SUDO_OK
+
+Pass criteria check:
+  whoami = tvolodi                                                                      PASS
+  id shows groups=1001(tvolodi),27(sudo),100(users),1000(sshusers)                      PASS
+  sudo -n true exit 0 + echo SUDO_OK                                                    PASS
+  No "Permission denied (publickey)"                                                    PASS (login succeeded)
+
+Note: ssh completed with exit 0, full live SSH handshake + sudo NOPASSWD both worked.
+This is the primary user-acceptance test. PASS.

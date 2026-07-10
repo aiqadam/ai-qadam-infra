@@ -1,0 +1,30 @@
+﻿=== ps -eo pid,comm,args (filtered for ufw/sleep) ===
+    PID    PPID    PGID     SID COMMAND         COMMAND
+
+=== /proc scan for any process whose cmdline literally contains 'sleep 300' (full 5-min rollback) ===
+NO_PROCESS_WITH_sleep_300
+
+=== /proc scan for any process whose cmdline literally contains 'ufw disable' ===
+NO_PROCESS_WITH_ufw_disable
+
+=== /tmp/ rollback artifacts ===
+drwxr-xr-x  3 root    root     260 Apr 21 16:30 ufw.pre-T0094.20260708T173602Z.bak
+
+=== /etc/ufw/ufw.conf ENABLED status ===
+ENABLED=yes
+
+=== ufw status verbose ===
+Status: active
+Logging: on (low)
+Default: deny (incoming), allow (outgoing), disabled (routed)
+New profiles: skip
+
+To                         Action      From
+--                         ------      ----
+22/tcp                     ALLOW IN    Anywhere                   # sshd - operator access T-0094 baseline
+22/tcp (v6)                ALLOW IN    Anywhere (v6)              # sshd - operator access T-0094 baseline
+
+
+=== systemd unit state ===
+enabled
+active

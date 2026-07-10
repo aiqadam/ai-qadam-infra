@@ -1,0 +1,54 @@
+﻿root:x:0:0:root:/root:/bin/bash
+nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
+--- sudoers.d ---
+total 16
+drwxr-x---   2 root root 4096 May  5 05:20 .
+drwxr-xr-x 108 root root 4096 Jul  7 11:19 ..
+-r--r-----   1 root root  127 May  5 05:20 90-cloud-init-users
+-r--r-----   1 root root  863 Jan 14 18:11 README
+--- sudoers.d contents ---
+/etc/sudoers.d/90-cloud-init-users:# Created by cloud-init v. 26.1-0ubuntu2 on Tue, 05 May 2026 05:20:50 +0000
+/etc/sudoers.d/90-cloud-init-users:
+/etc/sudoers.d/90-cloud-init-users:# User rules for root
+/etc/sudoers.d/90-cloud-init-users:root ALL=(ALL) NOPASSWD:ALL
+/etc/sudoers.d/README:#
+/etc/sudoers.d/README:# The default /etc/sudoers file created on installation of the
+/etc/sudoers.d/README:# sudo  package now includes the directive:
+/etc/sudoers.d/README:# 
+/etc/sudoers.d/README:# 	@includedir /etc/sudoers.d
+/etc/sudoers.d/README:# 
+/etc/sudoers.d/README:# This will cause sudo to read and parse any files in the /etc/sudoers.d 
+/etc/sudoers.d/README:# directory that do not end in '~' or contain a '.' character, if it
+/etc/sudoers.d/README:# exists. It is not an error if the directory does not exist.
+/etc/sudoers.d/README:# 
+/etc/sudoers.d/README:# Note also, that because sudoers contents can vary widely, no attempt is 
+/etc/sudoers.d/README:# made to add this directive to existing sudoers files on upgrade.  Feel free
+/etc/sudoers.d/README:# to add the above directive to the end of your /etc/sudoers file to enable 
+/etc/sudoers.d/README:# this functionality for existing installations if you wish!
+/etc/sudoers.d/README:#
+/etc/sudoers.d/README:# Finally, please note that using the visudo command is the recommended way
+/etc/sudoers.d/README:# to update sudoers content, since it protects against many failure modes.
+/etc/sudoers.d/README:# See the man page for visudo and sudoers for more information.
+/etc/sudoers.d/README:#
+--- currently logged in ---
+ssh : /tmp/probe-D.sh: line 7: last: command not found
+At line:1 char:1
++ ssh -i "C:\Users\tvolo\.ssh\pro-data.tech-qa-instance_rsa.ppk" -o Ide ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (/tmp/probe-D.sh...mmand not found 
+   :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+--- authorized_keys ---
+=== nobody ===
+--- root authorized_keys ---
+1 /root/.ssh/authorized_keys
+ssh-rsa rsa-key-20260707
+
+--- supplement (who/w only — last not installed on host) ---
+
+ 03:14:17 up 15:59,  2 users,  load average: 0.49, 0.28, 0.11
+USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU  WHAT
+root              178.89.57.135    03:14           0.00s  0.01s sshd-session: root [priv]
+root     pts/0    178.89.57.135    16:43   10:31m  0.03s  0.03s -bash
+-rw-rw-r-- 1 root utmp 2214528 Jul  8 03:14 /var/log/wtmp

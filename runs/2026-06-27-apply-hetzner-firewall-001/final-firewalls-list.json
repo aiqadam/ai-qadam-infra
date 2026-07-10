@@ -1,0 +1,37 @@
+{
+    "firewalls": [
+        {
+            "id": 11204449,
+            "created": "2026-06-27T07:14:31Z",
+            "name": "ai-qadam-mgmt-ssh",
+            "labels": {
+                "host": "ubuntu-16gb-nbg1-1",
+                "managed-by": "ai-dala-infra",
+                "purpose": "ssh-management-only"
+            },
+            "rules": [
+                {
+                    "description": "SSH from management workstation",
+                    "direction": "in",
+                    "port": "22",
+                    "protocol": "tcp",
+                    "destination_ips": [],
+                    "source_ips": [
+                        "178.89.57.135/32"
+                    ]
+                }
+            ],
+            "applied_to": []
+        }
+    ],
+    "meta": {
+        "pagination": {
+            "last_page": 1,
+            "next_page": null,
+            "page": 1,
+            "per_page": 25,
+            "previous_page": null,
+            "total_entries": 1
+        }
+    }
+}
