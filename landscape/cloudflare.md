@@ -1,15 +1,26 @@
 ---
 name: cloudflare
-last_verified: 2026-07-10
-status: stub
+last_verified: 2026-07-11
+status: active
 ---
 
 # Cloudflare
 
-This repo does not currently manage any Cloudflare zones directly.
+## Zones managed
+
+### aiqadam.org
+
+- **Zone ID:** `bec8854d698d56ff17cf917367634100` (reference only — value in `landscape/secrets-inventory.md`)
+- **Account ID:** see `landscape/secrets-inventory.md`
+- **API Token:** see `landscape/secrets-inventory.md` (`cloudflare-ai-qadam-api-token`)
+- **DNS records managed by this repo:**
+
+| Name | Type | Value | Proxied | Record ID | Purpose | Task | DNS verified |
+|---|---|---|---|---|---|---|---|
+| penpot.aiqadam.org | A | 95.46.211.224 | false | fde29338774531998ae38c41cd2e28ad | Penpot design tool | T-0107 | yes (2026-07-11) |
 
 ## Notes
 
-- Neither `ubuntu-16gb-nbg1-1` nor `pro-data-tech-qa` have any Cloudflare DNS records as of 2026-07-10.
-- If T-0090a is executed (add nginx + HTTPS for `qadam-test.ai-dala.com`), the DNS record must be created in the `ai-dala.com` zone — which is managed by the `ai-dala-infra` repository. Coordinate with the `ai-dala-infra` repo owner for that step.
-- Update this file if this project later acquires its own domain or Cloudflare zone.
+- The `aiqadam.org` zone was added 2026-07-11 to support Penpot deployment (T-0108/T-0109). Zone name confirmed `aiqadam.org` (no hyphen) via Cloudflare API.
+- Cloudflare proxy (orange cloud) set to OFF initially to allow certbot HTTP-01 challenge. May be switched to ON after cert issuance (set Cloudflare SSL mode to Full (strict) if proxied).
+- The `ai-dala.com` zone is managed by the separate `ai-dala-infra` repository — do not manage it here.

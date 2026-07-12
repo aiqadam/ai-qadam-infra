@@ -1,8 +1,8 @@
 ---
 name: services
-last_verified: 2026-07-10
+last_verified: 2026-07-11
 status: populated
-last_verified_note: Migrated from ai-dala-infra 2026-07-10 (T-0101). Contains ubuntu-16gb-nbg1-1 and pro-data-tech-qa service entries only.
+last_verified_note: 2026-07-11 (T-0109) — nginx 1.28.3 + Let's Encrypt TLS active on pro-data-tech-prod; https://penpot.aiqadam.org live. Penpot 2.16 fully operational with MCP.
 ---
 
 # Services
@@ -134,6 +134,67 @@ Verified by audit run `2026-07-10-audit-host-pro-data-tech-qa-001` and T-0099 ex
 - `/etc/cron.yearly/`: empty.
 - Systemd timers (19 stock cloud-image timers; 16 active, 3 inactive templates): `apt-daily-upgrade`, `apt-daily`, `dpkg-db-backup`, `motd-news`, `sysstat-collect`, `sysstat-rotate`, `sysstat-summary`, `logrotate`, `xfs_scrub_all`, `e2scrub_all`, `update-notifier-download`, `systemd-tmpfiles-clean`, `man-db`, `fstrim`, `update-notifier-motd` (inactive templates: `apport-autoreport`, `snapd.snap-repair`, `ua-timer`). **No `app-backup.timer`** (no apps to back up — T-0098 deferred). **No `fail2ban.service`** (T-0095 pending). **No certbot timer** (certbot not installed).
 
+## pro-data-tech-prod
+
+Populated by `2026-07-11-discovery-pro-data-tech-prod-001`. See [`hosts/pro-data-tech-prod.md`](hosts/pro-data-tech-prod.md) for the canonical host facts (hardware, OS, access, network, security). High-level: **Penpot 2.16 deployed (T-0108, 2026-07-11) — 7 Docker Compose containers running under project `penpot`; MCP enabled; `role: penpot-prod`. Docker CE 29.6.1 (T-0106). Security baseline complete (T-0102–T-0105). nginx 1.28.3 + Let's Encrypt TLS active (T-0109, 2026-07-11) — https://penpot.aiqadam.org live.**
+
+> **Penpot 2.16 fully deployed (T-0109 done 2026-07-11).** Security baseline: sshd hardened (T-0102), UFW active (T-0103), fail2ban active (T-0104), operator users provisioned (T-0105), Docker CE 29.6.1 (T-0106). nginx 1.28.3 + Let's Encrypt TLS active — https://penpot.aiqadam.org live. MCP enabled.
+
+### Docker
+
+- **Status (2026-07-11, T-0106):** Docker Engine **installed**. Version 29.6.1 (build `8900f1d`); Compose plugin v5.3.1; containerd.io 2.2.6 as runtime. systemd `docker.service` enabled + active. Operator user `tvolodi` added to `docker` group (gid 986). Installed from official Docker apt repo (keyring method; `deb … resolute stable` channel). UFW after.rules appended with DOCKER-USER coexistence block (T-0106): DOCKER-USER filter chain (`-A DOCKER-USER -i eth0 -j RETURN`) + MASQUERADE nat rule (`-A POSTROUTING -s 172.16.0.0/12 -o eth0 -j MASQUERADE`); backup at `/var/backups/ufw-after.rules-pre-T0106.bak`. `docker run hello-world` confirmed (step-07 PASS, 2026-07-11).
+
+#### Running Compose projects
+
+| Project | Compose file | Containers |
+|---|---|---|
+| `penpot` | `/opt/penpot/docker-compose.yaml` | 7 (penpot-frontend, penpot-backend, penpot-exporter, penpot-mcp, penpot-postgres, penpot-valkey, penpot-mailcatch) |
+
+#### Running containers (2026-07-11, post-T-0108)
+
+| Container | Image:tag | Compose project | Host ports | Health | Purpose |
+|---|---|---|---|---|---|
+| `penpot-penpot-frontend-1` | `penpotapp/frontend:2.16` | penpot | `0.0.0.0:9001→8080/tcp` | Up | Web frontend — proxied via nginx 1.28.3; HTTPS live at https://penpot.aiqadam.org (T-0109) |
+| `penpot-penpot-backend-1` | `penpotapp/backend:2.16` | penpot | (internal) | Up | Application backend |
+| `penpot-penpot-exporter-1` | `penpotapp/exporter:2.16` | penpot | (internal) | Up | Export service |
+| `penpot-penpot-mcp-1` | `penpotapp/mcp:2.16` | penpot | (internal) | Up | MCP server (Model Context Protocol) |
+| `penpot-penpot-postgres-1` | `postgres:15` | penpot | (internal) | Up (healthy) | PostgreSQL 15 database |
+| `penpot-penpot-valkey-1` | `valkey/valkey:8.1` | penpot | (internal) | Up (healthy) | Valkey (Redis-compatible) cache |
+| `penpot-penpot-mailcatch-1` | `sj26/mailcatcher:latest` | penpot | `127.0.0.1:1080→1080/tcp` | Up | Mail catcher (loopback-only) |
+
+### nginx
+
+- **Status (2026-07-11, T-0109):** nginx **1.28.3** — `active` and `enabled`. Package: `nginx 1.28.3-2ubuntu1.6` (Ubuntu apt). Vhost: `/etc/nginx/sites-available/penpot.aiqadam.org` (symlinked to `sites-enabled/penpot.aiqadam.org`). Config: HTTP→HTTPS redirect on port 80; HTTPS on port 443 with `client_max_body_size 367001600`; WebSocket proxy for `/ws/notifications` and `/mcp/ws`; SSE proxy for `/mcp/stream`; general proxy for `/` → `http://localhost:9001/`.
+
+### certbot
+
+- **Status (2026-07-11, T-0109):** certbot **4.0.0** + python3-certbot-nginx **4.0.0** — installed. `certbot.timer` active and enabled (auto-renewal). TLS certificate for `penpot.aiqadam.org`: `/etc/letsencrypt/live/penpot.aiqadam.org/` (ECDSA, expires 2026-10-09, intermediate CA `YE1`/Let's Encrypt, HTTP-01 challenge). Renewal config: `/etc/letsencrypt/renewal/penpot.aiqadam.org.conf`.
+
+### Native systemd services of note
+
+21 services running at discovery time — all standard Ubuntu cloud-image base:
+
+| Unit | User | What it does |
+|---|---|---|
+| `ssh.service` | root | sshd — **HARDENED** (T-0102, 2026-07-11): `PasswordAuthentication no`, `KbdInteractiveAuthentication no`, `PermitRootLogin prohibit-password`, `AllowGroups sshusers`, `MaxAuthTries 3`, `LoginGraceTime 30`, `X11Forwarding no`, `ClientAliveInterval 300`, `ClientAliveCountMax 2`; KEX/Ciphers/MACs tightened; drop-ins at `/etc/ssh/sshd_config.d/40-disable-password.conf` and `40-ai-dala-infra.conf`; socket-activated via `ssh.socket` |
+| `ufw.service` | root | **Enabled and active** (T-0103, 2026-07-11) — deny-incoming default, allow outgoing, 22/tcp 80/tcp 443/tcp ALLOW IN (v4+v6), DEFAULT_FORWARD_POLICY="DROP". Backup at `/var/backups/ufw-defaults-pre-T0103.bak`. |
+| `fail2ban.service` | root | Brute-force protection — sshd jail enabled (`bantime=1h`, `findtime=10m`, `maxretry=5`, `ignoreip=127.0.0.1/8 ::1`); config at `/etc/fail2ban/jail.local`; journal backend (`_SYSTEMD_UNIT=ssh.service + _COMM=sshd`). Installed 2026-07-11 via run `2026-07-11-install-fail2ban-pro-data-tech-prod-001` / T-0104. |
+| `docker.service` | root | Docker Engine — active, enabled. CE 29.6.1, Compose plugin v5.3.1, containerd.io 2.2.6 as runtime. UFW after.rules DOCKER-USER coexistence block in place (T-0106, 2026-07-11). |
+| `chrony.service` | root | NTP client (Ubuntu 26.04 default) |
+| `unattended-upgrades.service` | root | Automatic security upgrades (daily; 12 pending upgrades not yet applied) |
+| `qemu-guest-agent.service` | root | pro-data.tech KVM guest agent |
+| `cloud-init.{local,network,main,config,final}.service` | root | Cloud-init bootstrap stages (last apt activity 2026-07-07 11:23 UTC) |
+| `snapd.service` | root | Snap daemon |
+| `apparmor.service` | root | AppArmor MAC (179 profiles loaded, 103 enforce — stock Ubuntu 26.04 default) |
+| `systemd-resolved.service` | root | Local DNS stub on 127.0.0.53 / 127.0.0.54 |
+| `rsyslog.service`, `cron.service`, `dbus.service`, `fwupd.service`, `getty@tty1.service`, `ModemManager.service`, `multipathd.service`, `networkd-dispatcher.service`, `polkit.service`, `serial-getty@ttyS0.service`, `systemd-journald.service`, `systemd-logind.service`, `systemd-networkd.service`, `systemd-udevd.service`, `udisks2.service`, `user@0.service` | root | Standard Ubuntu cloud-image base |
+
+### Scheduled tasks
+
+- Root crontab: empty.
+- `/etc/cron.d/`: `e2scrub_all` only (stock Ubuntu).
+- Systemd timers: all standard Ubuntu timers (`apt-daily`, `apt-daily-upgrade`, `fwupd-refresh`, `logrotate`, `man-db`, `dpkg-db-backup`, `sysstat-*`, `e2scrub_all`, `xfs_scrub_all`, `fstrim`, `motd-news`, `systemd-tmpfiles-clean`, `update-notifier-*`) plus `certbot.timer` (active, T-0109, 2026-07-11 — auto-renews Let's Encrypt cert for `penpot.aiqadam.org`).
+
 ## Change log
 
 | Date | Run ID | Change |
@@ -162,6 +223,7 @@ Verified by audit run `2026-07-10-audit-host-pro-data-tech-qa-001` and T-0099 ex
 | 2026-06-10 | `2026-06-10-redeploy-bilimbaga-test-001` | T-0081: Deployed BilimBaga test from git ref `b349bb2` to `a9879ad` (27 commits, 293 files changed); rebuilt `bilimbaga-test:latest` (sha256:430db406ae6f) and `bilimbaga-api-test:latest` (sha256:3d1b53a16a04); rollback tags `bilimbaga-test:rollback-20260610` and `bilimbaga-api-test:rollback-20260610` created; all three containers force-recreated; health check HTTP 200 on-host and via Cloudflare. |
 | 2026-06-27 | `2026-06-27-discovery-host-001` | Added new top-level `## ubuntu-16gb-nbg1-1` section: freshly provisioned Ubuntu 26.04 cloud image; Docker not installed; nginx not installed; only stock cloud-image systemd units (ssh, chrony, qemu-guest-agent, unattended-upgrades, cloud-init, snapd, apparmor, systemd-resolved) plus the `ufw` binary (inactive). No cron jobs, no app-backup timer, no certbot timer. Host stub → populated. |
 | 2026-06-27 | `2026-06-27-install-fail2ban-001` | Added `fail2ban.service` row to the `## ubuntu-16gb-nbg1-1` Native systemd services table. Updated `ufw.service` row description from "Enabled but inactive" to "Enabled and active" with the T-0083 rule set. fail2ban 1.1.0-9 installed and active on the host; sshd jail enabled per host landscape file; iptables `f2b-sshd` chain present. Task T-0084 closed done/succeeded. |
+| 2026-07-11 | `2026-07-11-install-fail2ban-pro-data-tech-prod-001` | T-0104: Added `ufw.service` and `fail2ban.service` rows to the `## pro-data-tech-prod` Native systemd services table; updated `ssh.service` row from UNHARDENED to HARDENED (T-0102 done 2026-07-11); updated security warning banner to reflect T-0102/T-0103/T-0104 done. fail2ban 1.1.0-9 installed and active; sshd jail bantime=1h, findtime=10m, maxretry=5. Task T-0104 closed done/succeeded. |
 | 2026-07-08 | `2026-07-08-discovery-pro-data-tech-qa-001` | Added new top-level `## pro-data-tech-qa` section: freshly provisioned Ubuntu 26.04 cloud image on pro-data.tech provider (95.46.211.230); Docker not installed; nginx not installed; sshd at cloud-init defaults; UFW inactive; no fail2ban; no operator users; only stock cloud-image systemd units (ssh, chrony, qemu-guest-agent, unattended-upgrades, cloud-init, snapd, apparmor, systemd-resolved) + 14 stock units. Host stub → populated. Re-created 7 task files (T-0090, T-0093, T-0094, T-0095, T-0096, T-0097, T-0098) lost in the 2026-07-07 secrets-inventory scrub. |
 | 2026-07-08 | `2026-07-08-harden-sshd-pro-data-tech-qa-001` | pro-data-tech-qa | sshd hardening complete (T-0093) |
 | 2026-07-08 | `2026-07-08-install-ufw-pro-data-tech-qa-001` | pro-data-tech-qa | UFW firewall installed and active (T-0094); deny-in/allow-out/forward-DROP/IPv6-on; 22/tcp allowed from any source; DEFAULT_FORWARD_POLICY=DROP divergence documented for T-0090 Docker install |
@@ -170,3 +232,7 @@ Verified by audit run `2026-07-10-audit-host-pro-data-tech-qa-001` and T-0099 ex
 | 2026-07-08 | `2026-07-08-prepare-pro-data-tech-qa-as-ai-qadam-qa-001` | pro-data-tech-qa | Docker 29.6.1 + Compose v5.3.1 installed; UFW FORWARD policy reconciled DROP→ACCEPT; ai-qadam-test QA postgres container `ai-qadam-test-db-1` running healthy on `127.0.0.1:3112` → `5432`; 10/10 V-checks PASSED (T-0090 Phases A–E). app container + nginx + public HTTPS deferred to T-0090a. |
 | 2026-07-10 | `2026-07-10-apply-pending-kernel-upgrade-reboot-pro-data-tech-qa-001` | pro-data-tech-qa | T-0099 done — 9 apt upgrades applied (incl. linux-image-7.0.0-27-generic + tzdata 2026b + curl/libcurl 8.18.0-1ubuntu2.3 + ubuntu-kernel-accessories/minimal/server/standard 1.570.1); host rebooted into 7.0.0-27-generic (downtime 6m 44s); pre-reboot pg_dump + etc-snapshot preserved at `/var/backups/pre-T0099.20260710T061200Z/`; 4 phased-rollout packages (fwupd/libfwupd3/python3-software-properties/software-properties-common) remain in upgradable queue — Ubuntu's phased-update design, will land on next unattended-upgrades cycle. |
 | 2026-07-10 | `2026-07-10-enable-auditd-on-pro-data-tech-qa-001` | pro-data-tech-qa | T-0096 done — auditd 1:4.1.2-1build1 + audispd-plugins installed; project CIS-derived ruleset (15 keys, 67 kernel rules) loaded via `augenrules --load` from `/etc/audit/rules.d/audit.rules`; daemon `active`+`enabled`; kernel audit subsystem loaded (`CONFIG_AUDIT=y` built-in to kernel 7.0.0-27-generic, `kauditd` kthread running); 8/9 V-checks PASS, 1 PARTIAL (V07 — USER_AUTH + EXECVE event-classes absent due to NOPASSWD sudo + key-only SSH; operator-launched commands ARE recorded as `type=SYSCALL` records with `auid=1001` and `key="exec"`); pre-install snapshot at `/var/backups/pre-T0096.20260710T123137Z/`; in-place `stime` syscall fix applied (kernel 7.x retired `-S stime`; `adjtimex`/`settimeofday`/`clock_settime` cover time-change); immutable flag (`-e 2`) deferred to follow-up T-0096a after 24h soak. |
+| 2026-07-11 | `2026-07-11-discovery-pro-data-tech-prod-001` | Added new top-level `## pro-data-tech-prod` section: freshly provisioned Ubuntu 26.04 cloud image on pro-data.tech provider (95.46.211.224); no Docker; no nginx; sshd at cloud-init defaults (UNHARDENED); UFW inactive; no fail2ban; no auditd; no operator users; 21 running stock cloud-image systemd units only. Host stub → populated. T-0101 closed done/succeeded. |
+| 2026-07-11 | `2026-07-11-install-docker-pro-data-tech-prod-001` | T-0106: Docker CE 29.6.1 + Compose plugin v5.3.1 installed from official Docker apt repo; docker.service enabled+active; UFW after.rules DOCKER-USER coexistence block appended (MASQUERADE 172.16.0.0/12, eth0-scoped); tvolodi added to docker group (gid 986); `docker run hello-world` verified. T-0106 closed done/succeeded. |
+| 2026-07-11 | `2026-07-11-deploy-penpot-pro-data-tech-prod-001` | T-0108: Penpot 2.16 deployed on pro-data-tech-prod via Docker Compose at /opt/penpot/ (7 containers under project "penpot": penpot-frontend, penpot-backend, penpot-exporter, penpot-mcp, penpot-postgres, penpot-valkey, penpot-mailcatch). MCP enabled. PENPOT_PUBLIC_URI=https://penpot.aiqadam.org. Frontend HTTP 200 on localhost:9001. Mailcatch 127.0.0.1:1080. .env mode 600 (root). T-0108 closed done/succeeded. nginx+HTTPS pending (T-0109). |
+| 2026-07-11 | `2026-07-11-nginx-letsencrypt-penpot-aiqadam-org-001` | T-0109: nginx 1.28.3 installed and active on pro-data-tech-prod; vhost penpot.aiqadam.org created; Let's Encrypt TLS cert obtained (expires 2026-10-09, CA YE1); certbot.timer active; https://penpot.aiqadam.org live (HTTP 200). certbot 4.0.0 + python3-certbot-nginx installed. T-0109 closed done/succeeded. |
