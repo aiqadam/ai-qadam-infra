@@ -1,8 +1,8 @@
 ---
 name: services
-last_verified: 2026-07-11
+last_verified: 2026-07-13
 status: populated
-last_verified_note: 2026-07-11 (T-0109) — nginx 1.28.3 + Let's Encrypt TLS active on pro-data-tech-prod; https://penpot.aiqadam.org live. Penpot 2.16 fully operational with MCP.
+last_verified_note: 2026-07-13 (T-0111) — AiQadam prod app stack deployed on pro-data-tech-prod (Compose project `aiqadam-prod`: postgres + oidc-stub + api), coexisting with Penpot; nginx 1.28.3 + Let's Encrypt TLS active; https://aiqadam.org live. Prior note: 2026-07-13 (T-0110) — AiQadam QA app stack deployed on pro-data-tech-qa (Compose project `aiqadam-qa`: oidc-stub + api); nginx 1.28.3 + Let's Encrypt TLS active; https://qa-uz.aiqadam.org live.
 ---
 
 # Services
@@ -48,7 +48,7 @@ Populated by `2026-06-27-discovery-host-001`. See [`hosts/ubuntu-16gb-nbg1-1.md`
 
 ## pro-data-tech-qa
 
-Populated by `2026-07-08-discovery-pro-data-tech-qa-001`. See [`hosts/pro-data-tech-qa.md`](hosts/pro-data-tech-qa.md) for the canonical host facts (hardware, OS, access, network, security). High-level: **Docker-installed host running the ai-qadam QA postgres container (T-0090 Phases A–E done 2026-07-08)**; nginx and any internet-facing services still pending (Phases F–I deferred to T-0090a). `role: ai-qadam-qa`. Parent task T-0090 done.
+Populated by `2026-07-08-discovery-pro-data-tech-qa-001`. See [`hosts/pro-data-tech-qa.md`](hosts/pro-data-tech-qa.md) for the canonical host facts (hardware, OS, access, network, security). High-level: **Docker-installed host running the ai-qadam QA postgres container (T-0090 Phases A–E done 2026-07-08) plus the AiQadam QA application stack (T-0110 done 2026-07-13)** — nginx 1.28.3 + Let's Encrypt TLS live at `https://qa-uz.aiqadam.org`. `role: ai-qadam-qa`. Parent tasks T-0090 and T-0110 both done.
 
 - **sshd hardening status:** hardened 2026-07-08 — PasswordAuthentication/KbdInteractiveAuthentication disabled; PermitRootLogin prohibit-password; AllowGroups sshusers; KEX/Ciphers/MACs tightened (no SHA-1, no CBC/3DES/RC4); drop-ins at /etc/ssh/sshd_config.d/40-disable-password.conf and 40-ai-dala-infra.conf; sshusers group created 2026-07-08 with root as sole member; operators `tvolodi`/`viktor_d`/`binali_r` added to sshusers by T-0097 the same day.
 - **UFW firewall:** active 2026-07-08 (T-0094). Defaults: deny-incoming / allow-outgoing / forward-`ACCEPT` (flipped DROP→ACCEPT by T-0090 Phase A2, 2026-07-08; now matches sibling hosts `/etc/default/ufw` convention)/ IPv6 enabled. Inbound rules: 22/tcp (v4+v6) from any source. Backups: /tmp/ufw.pre-T0094.20260708T173602Z.bak/ + /etc/default/ufw.bak + /etc/default/ufw.pre-T0090.20260708T184046Z.bak (post-T-0094 pre-T-0090).
@@ -76,19 +76,23 @@ Verified by audit run `2026-07-10-audit-host-pro-data-tech-qa-001` and T-0099 ex
 
 | Project | Compose file | Containers |
 |---|---|---|
-| `ai-qadam-test` | `/var/www/ai-qadam-test/docker-compose.yml` | 1 (`ai-qadam-test-db-1` only — app container deferred to T-0090a) |
+| `ai-qadam-test` | `/var/www/ai-qadam-test/docker-compose.yml` | 1 (`ai-qadam-test-db-1` — postgres only) |
+| `aiqadam-qa` | `/opt/apps/aiqadam-qa/deploy/docker-compose.qa.yml` | 2 (`aiqadam-qa-oidc-stub-1`, `aiqadam-qa-api-1`) — deployed 2026-07-13, T-0110 |
 
-#### Running containers (2026-07-08, post-T-0090)
+#### Running containers (2026-07-13, post-T-0110)
 
 | Container | Image:tag | Compose project | Host ports | Bind | Restart / health | Purpose |
 |---|---|---|---|---|---|---|
-| `ai-qadam-test-db-1` | `pgvector/pgvector:pg16` | ai-qadam-test | `3112` → `5432` | `127.0.0.1` (loopback only) | `unless-stopped` / `(healthy)` (healthcheck `pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}`, 5s interval, 3s timeout, 10 retries) | ai-qadam QA postgres — db `aiqadam_test`, user `aiqadam` (credentials from `/var/www/ai-qadam-test/.env`, mode 600 tvolodi:tvolodi); volume `ai-qadam-test_ai_qadam_test_pgdata` (Docker-canonical full name of named volume `ai_qadam_test_pgdata`) |
+| `ai-qadam-test-db-1` | `pgvector/pgvector:pg16` | ai-qadam-test | `3112` → `5432` | `127.0.0.1` (loopback only) | `unless-stopped` / `(healthy)` (healthcheck `pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}`, 5s interval, 3s timeout, 10 retries) | ai-qadam QA postgres — dbs `aiqadam_test` (original) and `aiqadam_qa` (new, added 2026-07-13 by T-0110), user `aiqadam` (credentials from `/var/www/ai-qadam-test/.env`, mode 600 tvolodi:tvolodi); volume `ai-qadam-test_ai_qadam_test_pgdata` (Docker-canonical full name of named volume `ai_qadam_test_pgdata`) |
+| `aiqadam-qa-oidc-stub-1` | `nginx:alpine` | aiqadam-qa | `127.0.0.1:9999` (loopback only) | host network | healthy | Static OIDC discovery stub — permanent fixture satisfying the api's boot-time `Issuer.discover()` call; real OIDC login out of scope for this environment |
+| `aiqadam-qa-api-1` | built from `apps/api/Dockerfile` (checkout `/opt/apps/aiqadam-qa/`, git HEAD `dfd2a7c`) | aiqadam-qa | `127.0.0.1:3113` (loopback only) | host network | healthy | AiQadam QA NestJS API — proxied by nginx at `https://qa-uz.aiqadam.org`; db `aiqadam_qa` inside `ai-qadam-test-db-1`; env at `/opt/apps/aiqadam-qa/deploy/.env` (mode 600) |
 
-- **AI Qadam QA stack:** postgres container (pgvector/pgvector:pg16) at `127.0.0.1:3112` → `5432`; db `aiqadam_test`, user `aiqadam`. Stack name `ai-qadam-test`. Volume `ai_qadam_test_pgdata`. Status: deployed 2026-07-08, healthy.
+- **AI Qadam QA stack (postgres):** postgres container (pgvector/pgvector:pg16) at `127.0.0.1:3112` → `5432`; dbs `aiqadam_test` + `aiqadam_qa`, user `aiqadam`. Stack name `ai-qadam-test`. Volume `ai_qadam_test_pgdata`. Status: deployed 2026-07-08, healthy.
+- **AiQadam QA application stack:** Compose project `aiqadam-qa` (oidc-stub + api, host-networked). Deployed 2026-07-13 by [T-0110](../tasks/T-0110-setup-aiqadam-qa-deploy-infra-pro-data-tech-qa.md). Public endpoint `https://qa-uz.aiqadam.org` (nginx + Let's Encrypt TLS). See [`hosts/pro-data-tech-qa.md`](hosts/pro-data-tech-qa.md#aiqadam-application-stack-aiqadam-qa) for full detail.
 
 ### nginx
 
-- **Status (2026-07-08):** nginx **not installed**. No vhosts. (Will be installed as part of T-0090a's application baseline + public-internet exposure.)
+- **Status (2026-07-13, T-0110):** nginx **1.28.3** — `active` and `enabled`. Vhost: `/etc/nginx/sites-available/qa-uz.aiqadam.org` (symlinked to `sites-enabled/qa-uz.aiqadam.org`). Config: HTTP→HTTPS redirect on port 80; HTTPS on port 443 proxying to `http://127.0.0.1:3113/` (the `aiqadam-qa-api-1` container). Let's Encrypt TLS cert (certbot 4.0.0, ECDSA, expires 2026-10-11, `certbot.timer` active).
 
 - **sshd hardening status:** hardened 2026-07-08 — PasswordAuthentication/KbdInteractiveAuthentication disabled; PermitRootLogin prohibit-password; AllowGroups sshusers; KEX/Ciphers/MACs tightened (no SHA-1, no CBC/3DES/RC4); drop-ins at /etc/ssh/sshd_config.d/40-disable-password.conf and 40-ai-dala-infra.conf; sshusers group created 2026-07-08 with root as sole member; operators `tvolodi`/`viktor_d`/`binali_r` added to sshusers by T-0097 the same day.
 - **UFW firewall:** active 2026-07-08 (T-0094). Defaults: deny-incoming / allow-outgoing / forward-DROP / IPv6 enabled. Inbound rules: 22/tcp (v4+v6) from any source. Backups: /tmp/ufw.pre-T0094.20260708T173602Z.bak/ + /etc/default/ufw.bak.
@@ -117,8 +121,10 @@ Verified by audit run `2026-07-10-audit-host-pro-data-tech-qa-001` and T-0099 ex
 | `snapd.service` | (snap default) | root | Snap daemon |
 | `apparmor.service` | (package default) | root | AppArmor MAC (179 profiles loaded, 103 enforce) |
 | `systemd-resolved.service` | (package default) | root | Local DNS stub on 127.0.0.53 / 127.0.0.54 |
-| `ufw.service` | (package default) | root | **Enabled and active** — deny-by-default + allow 22/tcp (v4+v6) from any source, DEFAULT_FORWARD_POLICY="ACCEPT" (T-0090 Phases A–E 2026-07-08 flipped DROP→ACCEPT to allow Docker bridge traffic; now matches sibling-host convention); configured 2026-07-08 via run `2026-07-08-install-ufw-pro-data-tech-qa-001` / T-0094, FORWARD reconciled via run `2026-07-08-prepare-pro-data-tech-qa-as-ai-qadam-qa-001` / T-0090 |
-| `docker.service` | `/lib/systemd/system/docker.service` | root | Active, enabled. Hosts the `ai-qadam-test` QA stack (T-0090 Phases A–E, 2026-07-08). |
+| `ufw.service` | (package default) | root | **Enabled and active** — deny-by-default + allow 22/tcp (v4+v6) from any source, DEFAULT_FORWARD_POLICY="ACCEPT" (T-0090 Phases A–E 2026-07-08 flipped DROP→ACCEPT to allow Docker bridge traffic; now matches sibling-host convention); configured 2026-07-08 via run `2026-07-08-install-ufw-pro-data-tech-qa-001` / T-0094, FORWARD reconciled via run `2026-07-08-prepare-pro-data-tech-qa-as-ai-qadam-qa-001` / T-0090. **As of 2026-07-13 (T-0110): also allow 80/tcp + 443/tcp (v4+v6).** |
+| `docker.service` | `/lib/systemd/system/docker.service` | root | Active, enabled. Hosts the `ai-qadam-test` QA postgres stack (T-0090 Phases A–E, 2026-07-08) and the `aiqadam-qa` app stack (T-0110, 2026-07-13). |
+| `nginx.service` | (package default, 1.28.3) | root | Active, enabled. Vhost `qa-uz.aiqadam.org` proxying to `127.0.0.1:3113`. Installed 2026-07-13 via run `2026-07-13-setup-aiqadam-qa-infra-001` / T-0110. |
+| `certbot.timer` | (package default, certbot 4.0.0) | root | Active, enabled. Auto-renews the Let's Encrypt cert for `qa-uz.aiqadam.org` (expires 2026-10-11). Installed 2026-07-13 / T-0110. |
 | `fail2ban.service` | (apt package, `/usr/lib/systemd/system/fail2ban.service`) | root | Brute-force protection — sshd jail enabled (`maxretry=3`, `bantime=600s`, `findtime=600s`, `ignoreip=127.0.0.1/8 ::1 178.89.57.135`, `banaction=iptables-multiport`); config at `/etc/fail2ban/jail.d/sshd.local`. Installed 2026-07-08 via run `2026-07-08-install-fail2ban-pro-data-tech-qa-001` / T-0095 |
 | `auditd.service` | `/lib/systemd/system/auditd.service` | root | Kernel audit daemon — `active`+`enabled`, hosting project CIS-derived ruleset (15 keys, 67 kernel rules) loaded from `/etc/audit/rules.d/audit.rules`; audit log at `/var/log/audit/audit.log` (mode 0640, group `adm`); `kauditd` kthread running (kernel audit subsystem loaded via `CONFIG_AUDIT=y` built-in to kernel 7.0.0-27-generic). Installed 2026-07-10 via run `2026-07-10-enable-auditd-on-pro-data-tech-qa-001` / T-0096 (T-0096, 2026-07-10). Hosts 67 kernel rules, 15 keys (logins, time-change, identity, sudoers, privileged-priv_change, perm_mod, modules, cron, sshd_config, fail2ban_config, ufw_config, docker_config, ai_qadam_data, exec).
 | `rsyslog.service`, `cron.service`, `polkit.service`, `dbus.service`, `multipathd.service`, `systemd-{journald,logind,networkd,udevd}.service`, `user@0.service`, `getty@tty1.service`, `serial-getty@ttyS0.service`, `fwupd.service`, `udisks2.service`, `ModemManager.service`, `networkd-dispatcher.service` | (package defaults) | root | Standard Ubuntu cloud-image base (22 running services) |
@@ -132,13 +138,13 @@ Verified by audit run `2026-07-10-audit-host-pro-data-tech-qa-001` and T-0099 ex
 - `/etc/cron.weekly/`: `man-db` (stock).
 - `/etc/cron.monthly/`: empty.
 - `/etc/cron.yearly/`: empty.
-- Systemd timers (19 stock cloud-image timers; 16 active, 3 inactive templates): `apt-daily-upgrade`, `apt-daily`, `dpkg-db-backup`, `motd-news`, `sysstat-collect`, `sysstat-rotate`, `sysstat-summary`, `logrotate`, `xfs_scrub_all`, `e2scrub_all`, `update-notifier-download`, `systemd-tmpfiles-clean`, `man-db`, `fstrim`, `update-notifier-motd` (inactive templates: `apport-autoreport`, `snapd.snap-repair`, `ua-timer`). **No `app-backup.timer`** (no apps to back up — T-0098 deferred). **No `fail2ban.service`** (T-0095 pending). **No certbot timer** (certbot not installed).
+- Systemd timers (19 stock cloud-image timers; 16 active, 3 inactive templates): `apt-daily-upgrade`, `apt-daily`, `dpkg-db-backup`, `motd-news`, `sysstat-collect`, `sysstat-rotate`, `sysstat-summary`, `logrotate`, `xfs_scrub_all`, `e2scrub_all`, `update-notifier-download`, `systemd-tmpfiles-clean`, `man-db`, `fstrim`, `update-notifier-motd` (inactive templates: `apport-autoreport`, `snapd.snap-repair`, `ua-timer`). **No `app-backup.timer`** (no apps to back up — T-0098 deferred). Plus, as of 2026-07-13 (T-0110): `certbot.timer` (active, renews the `qa-uz.aiqadam.org` cert). *(Historical note: at initial discovery, 2026-07-08, this host had neither `fail2ban.service` nor a certbot timer; both landed by T-0095 and T-0110 respectively.)*
 
 ## pro-data-tech-prod
 
-Populated by `2026-07-11-discovery-pro-data-tech-prod-001`. See [`hosts/pro-data-tech-prod.md`](hosts/pro-data-tech-prod.md) for the canonical host facts (hardware, OS, access, network, security). High-level: **Penpot 2.16 deployed (T-0108, 2026-07-11) — 7 Docker Compose containers running under project `penpot`; MCP enabled; `role: penpot-prod`. Docker CE 29.6.1 (T-0106). Security baseline complete (T-0102–T-0105). nginx 1.28.3 + Let's Encrypt TLS active (T-0109, 2026-07-11) — https://penpot.aiqadam.org live.**
+Populated by `2026-07-11-discovery-pro-data-tech-prod-001`. See [`hosts/pro-data-tech-prod.md`](hosts/pro-data-tech-prod.md) for the canonical host facts (hardware, OS, access, network, security). High-level: **Penpot 2.16 deployed (T-0108, 2026-07-11) — 7 Docker Compose containers running under project `penpot`; MCP enabled; `role: penpot-prod`. Docker CE 29.6.1 (T-0106). Security baseline complete (T-0102–T-0105). nginx 1.28.3 + Let's Encrypt TLS active (T-0109, 2026-07-11) — https://penpot.aiqadam.org live.** **AiQadam prod app stack deployed (T-0111, 2026-07-13) — 3 Docker Compose containers running under project `aiqadam-prod`, coexisting with Penpot; https://aiqadam.org live.**
 
-> **Penpot 2.16 fully deployed (T-0109 done 2026-07-11).** Security baseline: sshd hardened (T-0102), UFW active (T-0103), fail2ban active (T-0104), operator users provisioned (T-0105), Docker CE 29.6.1 (T-0106). nginx 1.28.3 + Let's Encrypt TLS active — https://penpot.aiqadam.org live. MCP enabled.
+> **Penpot 2.16 fully deployed (T-0109 done 2026-07-11).** Security baseline: sshd hardened (T-0102), UFW active (T-0103), fail2ban active (T-0104), operator users provisioned (T-0105), Docker CE 29.6.1 (T-0106). nginx 1.28.3 + Let's Encrypt TLS active — https://penpot.aiqadam.org live. MCP enabled. **AiQadam prod app stack deployed (T-0111 done 2026-07-13) — https://aiqadam.org live, Penpot confirmed unregressed.**
 
 ### Docker
 
@@ -149,8 +155,9 @@ Populated by `2026-07-11-discovery-pro-data-tech-prod-001`. See [`hosts/pro-data
 | Project | Compose file | Containers |
 |---|---|---|
 | `penpot` | `/opt/penpot/docker-compose.yaml` | 7 (penpot-frontend, penpot-backend, penpot-exporter, penpot-mcp, penpot-postgres, penpot-valkey, penpot-mailcatch) |
+| `aiqadam-prod` | `/opt/apps/aiqadam-prod/deploy/docker-compose.prod.yml` | 3 (`aiqadam-prod-postgres-1`, `aiqadam-prod-oidc-stub-1`, `aiqadam-prod-api-1`) — deployed 2026-07-13, T-0111 |
 
-#### Running containers (2026-07-11, post-T-0108)
+#### Running containers (2026-07-13, post-T-0111)
 
 | Container | Image:tag | Compose project | Host ports | Health | Purpose |
 |---|---|---|---|---|---|
@@ -161,14 +168,19 @@ Populated by `2026-07-11-discovery-pro-data-tech-prod-001`. See [`hosts/pro-data
 | `penpot-penpot-postgres-1` | `postgres:15` | penpot | (internal) | Up (healthy) | PostgreSQL 15 database |
 | `penpot-penpot-valkey-1` | `valkey/valkey:8.1` | penpot | (internal) | Up (healthy) | Valkey (Redis-compatible) cache |
 | `penpot-penpot-mailcatch-1` | `sj26/mailcatcher:latest` | penpot | `127.0.0.1:1080→1080/tcp` | Up | Mail catcher (loopback-only) |
+| `aiqadam-prod-postgres-1` | `postgres:16` | aiqadam-prod | `3114` → `5432` (binds `0.0.0.0`/`[::]`, `network_mode: host`) | Up (healthy), RestartCount=0 | Dedicated AiQadam prod PostgreSQL — db `aiqadam_prod`, user `aiqadam_prod`; NOT shared with QA's `aiqadam_qa`/`aiqadam_test`; volume `aiqadam-prod_aiqadam_prod_pgdata`; protected by UFW default-deny (no app-layer loopback restriction), matching Penpot's postgres precedent |
+| `aiqadam-prod-oidc-stub-1` | `nginx:alpine` | aiqadam-prod | `127.0.0.1:9998` (loopback only) | Up (healthy) | Static OIDC discovery stub — permanent fixture satisfying the api's boot-time `Issuer.discover()` call; real OIDC login out of scope for this environment |
+| `aiqadam-prod-api-1` | built from `apps/api/Dockerfile` (checkout `/opt/apps/aiqadam-prod/`, git HEAD `dfd2a7c`) | aiqadam-prod | `127.0.0.1:3115` (loopback only) | Up (healthy), RestartCount=0 | AiQadam prod NestJS API — proxied by nginx at `https://aiqadam.org`; db `aiqadam_prod` inside `aiqadam-prod-postgres-1`; env at `/opt/apps/aiqadam-prod/deploy/.env` (mode 600); known gap: no Redis/Valkey service (ioredis ECONNREFUSED, non-blocking — see `shared/app-registry.md`) |
+
+- **AiQadam prod application stack:** Compose project `aiqadam-prod` (postgres + oidc-stub + api, host-networked). Deployed 2026-07-13 by [T-0111](../tasks/T-0111-setup-aiqadam-prod-deploy-infra-pro-data-tech-prod.md). Public endpoint `https://aiqadam.org` (nginx + Let's Encrypt TLS). See [`hosts/pro-data-tech-prod.md`](hosts/pro-data-tech-prod.md#aiqadam-prod) for full detail.
 
 ### nginx
 
-- **Status (2026-07-11, T-0109):** nginx **1.28.3** — `active` and `enabled`. Package: `nginx 1.28.3-2ubuntu1.6` (Ubuntu apt). Vhost: `/etc/nginx/sites-available/penpot.aiqadam.org` (symlinked to `sites-enabled/penpot.aiqadam.org`). Config: HTTP→HTTPS redirect on port 80; HTTPS on port 443 with `client_max_body_size 367001600`; WebSocket proxy for `/ws/notifications` and `/mcp/ws`; SSE proxy for `/mcp/stream`; general proxy for `/` → `http://localhost:9001/`.
+- **Status (2026-07-11, T-0109; 2026-07-13, T-0111):** nginx **1.28.3** — `active` and `enabled`. Package: `nginx 1.28.3-2ubuntu1.6` (Ubuntu apt). Vhosts: `/etc/nginx/sites-available/penpot.aiqadam.org` (symlinked to `sites-enabled/penpot.aiqadam.org`) and `/etc/nginx/sites-available/aiqadam.org` (symlinked to `sites-enabled/aiqadam.org`, added T-0111). Config (Penpot): HTTP→HTTPS redirect on port 80; HTTPS on port 443 with `client_max_body_size 367001600`; WebSocket proxy for `/ws/notifications` and `/mcp/ws`; SSE proxy for `/mcp/stream`; general proxy for `/` → `http://localhost:9001/`. Config (AiQadam prod): HTTP→HTTPS redirect on port 80; HTTPS on port 443 proxying `/` → `http://127.0.0.1:3115/`; bare apex only, no `www`.
 
 ### certbot
 
-- **Status (2026-07-11, T-0109):** certbot **4.0.0** + python3-certbot-nginx **4.0.0** — installed. `certbot.timer` active and enabled (auto-renewal). TLS certificate for `penpot.aiqadam.org`: `/etc/letsencrypt/live/penpot.aiqadam.org/` (ECDSA, expires 2026-10-09, intermediate CA `YE1`/Let's Encrypt, HTTP-01 challenge). Renewal config: `/etc/letsencrypt/renewal/penpot.aiqadam.org.conf`.
+- **Status (2026-07-11, T-0109; 2026-07-13, T-0111):** certbot **4.0.0** + python3-certbot-nginx **4.0.0** — installed. `certbot.timer` active and enabled (auto-renewal). TLS certificate for `penpot.aiqadam.org`: `/etc/letsencrypt/live/penpot.aiqadam.org/` (ECDSA, expires 2026-10-09, intermediate CA `YE1`/Let's Encrypt, HTTP-01 challenge). TLS certificate for `aiqadam.org`: `/etc/letsencrypt/live/aiqadam.org/` (ECDSA, expires 2026-10-11, T-0111). Renewal configs: `/etc/letsencrypt/renewal/penpot.aiqadam.org.conf` and `/etc/letsencrypt/renewal/aiqadam.org.conf`.
 
 ### Native systemd services of note
 
@@ -193,7 +205,7 @@ Populated by `2026-07-11-discovery-pro-data-tech-prod-001`. See [`hosts/pro-data
 
 - Root crontab: empty.
 - `/etc/cron.d/`: `e2scrub_all` only (stock Ubuntu).
-- Systemd timers: all standard Ubuntu timers (`apt-daily`, `apt-daily-upgrade`, `fwupd-refresh`, `logrotate`, `man-db`, `dpkg-db-backup`, `sysstat-*`, `e2scrub_all`, `xfs_scrub_all`, `fstrim`, `motd-news`, `systemd-tmpfiles-clean`, `update-notifier-*`) plus `certbot.timer` (active, T-0109, 2026-07-11 — auto-renews Let's Encrypt cert for `penpot.aiqadam.org`).
+- Systemd timers: all standard Ubuntu timers (`apt-daily`, `apt-daily-upgrade`, `fwupd-refresh`, `logrotate`, `man-db`, `dpkg-db-backup`, `sysstat-*`, `e2scrub_all`, `xfs_scrub_all`, `fstrim`, `motd-news`, `systemd-tmpfiles-clean`, `update-notifier-*`) plus `certbot.timer` (active — auto-renews Let's Encrypt certs for `penpot.aiqadam.org`, T-0109, 2026-07-11, and `aiqadam.org`, T-0111, 2026-07-13).
 
 ## Change log
 
@@ -236,3 +248,5 @@ Populated by `2026-07-11-discovery-pro-data-tech-prod-001`. See [`hosts/pro-data
 | 2026-07-11 | `2026-07-11-install-docker-pro-data-tech-prod-001` | T-0106: Docker CE 29.6.1 + Compose plugin v5.3.1 installed from official Docker apt repo; docker.service enabled+active; UFW after.rules DOCKER-USER coexistence block appended (MASQUERADE 172.16.0.0/12, eth0-scoped); tvolodi added to docker group (gid 986); `docker run hello-world` verified. T-0106 closed done/succeeded. |
 | 2026-07-11 | `2026-07-11-deploy-penpot-pro-data-tech-prod-001` | T-0108: Penpot 2.16 deployed on pro-data-tech-prod via Docker Compose at /opt/penpot/ (7 containers under project "penpot": penpot-frontend, penpot-backend, penpot-exporter, penpot-mcp, penpot-postgres, penpot-valkey, penpot-mailcatch). MCP enabled. PENPOT_PUBLIC_URI=https://penpot.aiqadam.org. Frontend HTTP 200 on localhost:9001. Mailcatch 127.0.0.1:1080. .env mode 600 (root). T-0108 closed done/succeeded. nginx+HTTPS pending (T-0109). |
 | 2026-07-11 | `2026-07-11-nginx-letsencrypt-penpot-aiqadam-org-001` | T-0109: nginx 1.28.3 installed and active on pro-data-tech-prod; vhost penpot.aiqadam.org created; Let's Encrypt TLS cert obtained (expires 2026-10-09, CA YE1); certbot.timer active; https://penpot.aiqadam.org live (HTTP 200). certbot 4.0.0 + python3-certbot-nginx installed. T-0109 closed done/succeeded. |
+| 2026-07-13 | `2026-07-13-setup-aiqadam-qa-infra-001` | T-0110: AiQadam QA app stack deployed on pro-data-tech-qa — Compose project `aiqadam-qa` (`aiqadam-qa-oidc-stub-1`, `aiqadam-qa-api-1`, host-networked); new `aiqadam_qa` database inside existing `ai-qadam-test-db-1`; nginx 1.28.3 + certbot 4.0.0 installed, vhost + Let's Encrypt TLS live at `https://qa-uz.aiqadam.org` (renamed mid-run from `qa.aiqadam.org`); UFW 80/443 opened. T-0110 closed done/succeeded. |
+| 2026-07-13 | `2026-07-13-setup-aiqadam-prod-infra-001` | T-0111: AiQadam prod app stack deployed on pro-data-tech-prod — Compose project `aiqadam-prod` (`aiqadam-prod-postgres-1` postgres:16, `aiqadam-prod-oidc-stub-1`, `aiqadam-prod-api-1`, host-networked); new dedicated `aiqadam_prod` database (own container, not shared with QA); nginx vhost + Let's Encrypt TLS live at `https://aiqadam.org`; Cloudflare apex A record repointed from a third-party host; Penpot confirmed unregressed throughout. T-0111 closed done/succeeded. |

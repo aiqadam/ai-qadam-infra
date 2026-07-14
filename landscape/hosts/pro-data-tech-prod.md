@@ -2,9 +2,9 @@
 host_id: pro-data-tech-prod
 provider: pro-data.tech
 role: penpot-prod
-last_verified: 2026-07-11
+last_verified: 2026-07-13
 status: hardened
-last_verified_note: T-0109 done 2026-07-11 — Penpot fully operational at https://penpot.aiqadam.org with MCP. nginx 1.28.3 + Let's Encrypt TLS active. Run 2026-07-11-nginx-letsencrypt-penpot-aiqadam-org-001, step-07 PASS.
+last_verified_note: T-0111 done 2026-07-13 — AiQadam prod app stack deployed (Compose project aiqadam-prod, 3 containers) alongside Penpot; nginx vhost + Let's Encrypt TLS live at https://aiqadam.org; Cloudflare apex A record repointed. Run 2026-07-13-setup-aiqadam-prod-infra-001, step-07 PASS.
 ssh_user: tvolodi
 ssh_port: 22
 os: ubuntu-26.04
@@ -13,9 +13,9 @@ kernel: 7.0.0-14-generic
 
 # pro-data-tech-prod
 
-A pro-data.tech cloud VM (IPv4 `95.46.211.224`, hostname `drkkrgm-prod-instance`) added to the inventory on 2026-07-11. Provider is **pro-data.tech** (NOT Hetzner) — no Hetzner Cloud Firewall, no Hetzner API, no Hetzner Backups option; the host stands on its own with cloud-init defaults. Sister host `pro-data-tech-qa` (`95.46.211.230`) is on the same `/25` subnet and has been fully hardened (T-0093 through T-0099). Role: **penpot-prod** — hosts the Penpot 2.16 design tool (T-0108, 2026-07-11).
+A pro-data.tech cloud VM (IPv4 `95.46.211.224`, hostname `drkkrgm-prod-instance`) added to the inventory on 2026-07-11. Provider is **pro-data.tech** (NOT Hetzner) — no Hetzner Cloud Firewall, no Hetzner API, no Hetzner Backups option; the host stands on its own with cloud-init defaults. Sister host `pro-data-tech-qa` (`95.46.211.230`) is on the same `/25` subnet and has been fully hardened (T-0093 through T-0099). Role: **penpot-prod** — hosts the Penpot 2.16 design tool (T-0108, 2026-07-11) and, as of T-0111 (2026-07-13), the AiQadam production app stack.
 
-> **Security baseline complete + Penpot fully deployed (2026-07-11):** sshd hardened (T-0102), UFW active (T-0103), fail2ban active (T-0104), operator users provisioned (T-0105), Docker CE 29.6.1 (T-0106). **Penpot 2.16 deployed (T-0108, 2026-07-11) — 7 containers running, MCP enabled. nginx 1.28.3 + Let's Encrypt TLS active (T-0109, 2026-07-11) — https://penpot.aiqadam.org live.** Remaining items: auditd not installed (gap #4), pending package upgrades (gap #5).
+> **Security baseline complete + Penpot fully deployed (2026-07-11):** sshd hardened (T-0102), UFW active (T-0103), fail2ban active (T-0104), operator users provisioned (T-0105), Docker CE 29.6.1 (T-0106). **Penpot 2.16 deployed (T-0108, 2026-07-11) — 7 containers running, MCP enabled. nginx 1.28.3 + Let's Encrypt TLS active (T-0109, 2026-07-11) — https://penpot.aiqadam.org live.** **AiQadam prod app stack deployed (T-0111, 2026-07-13) — Compose project `aiqadam-prod` (postgres, oidc-stub, api), additive nginx vhost + Let's Encrypt TLS live at https://aiqadam.org, coexisting with Penpot.** Remaining items: auditd not installed (gap #4), pending package upgrades (gap #5).
 
 Populated by discovery run [`2026-07-11-discovery-pro-data-tech-prod-001`](../../runs/2026-07-11-discovery-pro-data-tech-prod-001/).
 
@@ -40,11 +40,12 @@ Verified by discovery run `2026-07-11-discovery-pro-data-tech-prod-001` (probes 
 
 Verified by discovery run `2026-07-11-discovery-pro-data-tech-prod-001` (probes A, D, E).
 
-- **Primary SSH user:** `tvolodi` (uid 1000). Key comment: `ai-dala-infra-mgmt@tvolodi-2026-05-12` (ED25519), at `/home/tvolodi/.ssh/authorized_keys`. Management key: `C:\Users\tvolo\.ssh\ai-dala-infra`.
-- **Break-glass SSH user:** `root` (uid 0). Key: `rsa-key-20260707` (RSA, provider-provisioned), at `/root/.ssh/authorized_keys`. Management key: `C:\Users\tvolo\.ssh\pro-data.tech-prod-instance_rsa.ppk`. `PermitRootLogin prohibit-password` — key-only. Root remains in `sshusers` permanently.
+- **Primary SSH user:** `tvolodi` (uid 1000). Key comment: `ai-dala-infra-mgmt@tvolodi-2026-05-12` (ED25519), at `/home/tvolodi/.ssh/authorized_keys`. Management key: `C:\Users\tvolo\.ssh\ai-dala-infra`. **Confirmed correct (T-0111, 2026-07-13):** this is the ONLY working key for `tvolodi` on this host — `ssh -i "C:\Users\tvolo\.ssh\ai-dala-infra" -o IdentitiesOnly=yes tvolodi@95.46.211.224`.
+- **Break-glass SSH user:** `root` (uid 0). Key: `rsa-key-20260707` (RSA, provider-provisioned), at `/root/.ssh/authorized_keys`. Management key: `C:\Users\tvolo\.ssh\pro-data.tech-prod-instance_rsa.ppk`. `PermitRootLogin prohibit-password` — key-only. Root remains in `sshusers` permanently. **This RSA `.ppk` key is the root break-glass key ONLY — it does NOT authenticate as `tvolodi` (confirmed rejected, T-0111, 2026-07-13). Prior documentation implying this key works for `tvolodi` was incorrect and has been corrected here.**
 - **SSH host (primary):** `tvolodi@95.46.211.224`
 - **SSH host (break-glass):** `root@95.46.211.224`
-- **SSH key (management workstation):** `C:\Users\tvolo\.ssh\pro-data.tech-prod-instance_rsa.ppk` (OpenSSH-format RSA despite the misleading `.ppk` extension; file starts with `-----BEGIN RSA PRIVATE KEY-----`).
+- **SSH key (management workstation, tvolodi):** `C:\Users\tvolo\.ssh\ai-dala-infra` (ED25519) — matches the QA host's (`pro-data-tech-qa`) key pattern for `tvolodi`.
+- **SSH key (management workstation, root break-glass only):** `C:\Users\tvolo\.ssh\pro-data.tech-prod-instance_rsa.ppk` (OpenSSH-format RSA despite the misleading `.ppk` extension; file starts with `-----BEGIN RSA PRIVATE KEY-----`).
 - **Sudo:** passwordless for `root` via `/etc/sudoers.d/90-cloud-init-users` (`root ALL=(ALL) NOPASSWD:ALL`; cloud-init default). Project-managed drop-ins: `/etc/sudoers.d/90-tvolodi`, `/etc/sudoers.d/90-viktor_d`, `/etc/sudoers.d/90-binali_r` (each: `<user> ALL=(ALL) NOPASSWD: ALL`, mode 0440, owner root). Full `visudo -c` parse: clean.
 - **Local users:** `root` (uid 0), `tvolodi` (uid 1000), `viktor_d` (uid 1001), `binali_r` (uid 1002) — all login-capable with key-only auth. `nobody` (uid 65534, nologin).
 - **Currently logged in (at discovery time):** no active sessions other than the probe session (`who` returned empty).
@@ -77,7 +78,7 @@ Verified by discovery run `2026-07-11-discovery-pro-data-tech-prod-001` (probes 
 
 ## What runs here
 
-See [`../services.md`](../services.md) for the canonical per-host table. High-level: **Penpot 2.16 deployed (T-0108, 2026-07-11) — 7 Docker Compose containers running under project `penpot`; MCP enabled (`penpot-mcp` running); nginx 1.28.3 + Let's Encrypt TLS active (T-0109, 2026-07-11) — https://penpot.aiqadam.org live.** Docker CE 29.6.1 (T-0106).
+See [`../services.md`](../services.md) for the canonical per-host table. High-level: **Penpot 2.16 deployed (T-0108, 2026-07-11) — 7 Docker Compose containers running under project `penpot`; MCP enabled (`penpot-mcp` running); nginx 1.28.3 + Let's Encrypt TLS active (T-0109, 2026-07-11) — https://penpot.aiqadam.org live.** **AiQadam prod app stack deployed (T-0111, 2026-07-13) — 3 Docker Compose containers running under project `aiqadam-prod`; nginx vhost + Let's Encrypt TLS live — https://aiqadam.org live.** Docker CE 29.6.1 (T-0106).
 
 ## Penpot
 
@@ -107,22 +108,45 @@ Deployed by run `2026-07-11-deploy-penpot-pro-data-tech-prod-001` (T-0108, 2026-
 | `penpot-penpot-valkey-1` | `valkey/valkey:8.1` | (internal) | Up (healthy) | Valkey (Redis-compatible) cache |
 | `penpot-penpot-mailcatch-1` | `sj26/mailcatcher:latest` | `127.0.0.1:1080→1080/tcp` | Up | Mail catcher (loopback-only) |
 
+## AiQadam Prod
+
+Deployed by run `2026-07-13-setup-aiqadam-prod-infra-001` (T-0111, 2026-07-13). AiQadam production API running as a 3-container Docker Compose stack under project name `aiqadam-prod` at `/opt/apps/aiqadam-prod/`, coexisting with (and confirmed non-disruptive to) the pre-existing Penpot deployment.
+
+- **Checkout:** `/opt/apps/aiqadam-prod/` — git HEAD `dfd2a7c` (pinned, detached HEAD — not tracking a moving branch), from `https://github.com/aiqadam/ai-qadam-platform.git`. Same commit already validated on QA via T-0110.
+- **Compose directory:** `/opt/apps/aiqadam-prod/deploy/`
+- **Compose file:** `/opt/apps/aiqadam-prod/deploy/docker-compose.prod.yml` (3 services: `postgres`, `oidc-stub`, `api`; all `network_mode: host`)
+- **Env file:** `/opt/apps/aiqadam-prod/deploy/.env` (mode 600, owner `tvolodi:tvolodi`) — 3 new secrets, names only: `aiqadam-prod-jwt-signing-secret`, `aiqadam-prod-internal-api-token`, `aiqadam-prod-postgres-password` (see [`../secrets-inventory.md`](../secrets-inventory.md); `POSTGRES_PASSWORD` generated via `openssl rand -hex 24` to avoid URL-metacharacters)
+- **Database:** dedicated `aiqadam_prod` database inside the new `aiqadam-prod-postgres-1` container (postgres:16) — NOT shared with QA's `aiqadam_qa`/`aiqadam_test` databases on `pro-data-tech-qa`. Volume `aiqadam-prod_aiqadam_prod_pgdata`.
+- **Postgres bind-address posture:** binds `0.0.0.0:3114`/`[::]:3114` under `network_mode: host` (not app-layer loopback-restricted) — protected solely by UFW's default-deny-incoming policy (only 22/80/443/tcp allowed in), matching the existing Penpot `postgres:15` precedent on this same host rather than introducing a new per-service hardening posture.
+- **Containers:** see [`../services.md`](../services.md#running-containers-2026-07-13-post-t-0111) for the full table.
+- **nginx vhost:** `/etc/nginx/sites-available/aiqadam.org` (symlinked to `sites-enabled`) — additive, new file; proxies to `127.0.0.1:3115`; bare apex only (`server_name aiqadam.org;`, no `www`); coexists with, and does not modify, the pre-existing `penpot.aiqadam.org` vhost.
+- **TLS:** separate Let's Encrypt cert for `aiqadam.org` (ECDSA, issued 2026-07-13, expires 2026-10-11), auto-renewing via the same `certbot.timer` already active on this host. Penpot's own cert (`penpot.aiqadam.org`, expires 2026-10-09) is a fully independent cert, unaffected.
+- **Cloudflare:** the `aiqadam.org` apex A record (zone `bec8854d698d56ff17cf917367634100`, record ID `bf1113199732117bd147ebd87d6e356d`) was repointed from `212.20.151.29` (a third-party, unrelated PaaS host) to `95.46.211.224`, and `proxied` flipped from `true` to `false`. See [`../cloudflare.md`](../cloudflare.md) for full zone detail.
+- **Health endpoint:** `GET https://aiqadam.org/health` → `200`, `{"status":"ok","service":"api","tenant":{"code":"uz",...}}` — resolves via the app's `DEFAULT_TENANT_CODE='uz'` fallback because `aiqadam` (and `www`) are hardcoded into the app's own `NON_TENANT_LABELS` set (confirmed by reading `tenant.middleware.ts` source — an intentional, source-confirmed exemption, distinct from the length-based fallback QA's `qa-uz.aiqadam.org` relies on).
+- **Known deviation:** bare `GET https://aiqadam.org/` returns 404 (no route handler for `/` in the Nest/Express app) — pre-existing app behavior, same as QA, confirmed unrelated to infra.
+- **Scope decision:** only `apps/api` is containerized for prod — `apps/web`/`apps/web-next` are NOT deployed here. OIDC login and Directus-CMS-backed routes are non-functional in this environment by design (schema-valid placeholder env vars satisfy boot-time validation only). Matches the QA precedent (T-0110).
+- **Known gap:** no Redis/Valkey service is included in this stack. The `api` container logs continuous `ioredis ECONNREFUSED` from `JtiRevocationService`/`OutboxRelayService`/internal-cron/Telegram module — the app boots and `/health` passes (zod default for `REDIS_URL`), but token-revocation-on-signout and background cron/Telegram features are silently non-functional. Same underlying gap exists in the QA environment. Tracked as a pending follow-on task (see `tasks/`).
+- **Full detail:** see run [`2026-07-13-setup-aiqadam-prod-infra-001`](../../runs/2026-07-13-setup-aiqadam-prod-infra-001/) and [`shared/app-registry.md`](../../shared/app-registry.md) for the complete deploy record.
+
 ## nginx
 
 **Installed and active** (T-0109, 2026-07-11). nginx 1.28.3.
 
 - **Package:** `nginx 1.28.3-2ubuntu1.6` (Ubuntu apt)
 - **Service:** `nginx.service` — `active` and `enabled`
-- **Vhost:** `/etc/nginx/sites-available/penpot.aiqadam.org` (symlinked to `/etc/nginx/sites-enabled/penpot.aiqadam.org`)
-- **Config:** HTTP→HTTPS redirect on port 80; HTTPS on port 443 with `client_max_body_size 367001600`; WebSocket proxy for `/ws/notifications` and `/mcp/ws`; SSE proxy for `/mcp/stream`; general proxy for `/` → `http://localhost:9001/`
-- **TLS:** Let's Encrypt via certbot 4.0.0; cert at `/etc/letsencrypt/live/penpot.aiqadam.org/` (ECDSA, expires 2026-10-09, intermediate CA `YE1`); auto-renewal via `certbot.timer` (active)
-- **Access URL:** `https://penpot.aiqadam.org` — HTTP 200 confirmed from external workstation (step-07 PASS)
+- **Vhost (Penpot):** `/etc/nginx/sites-available/penpot.aiqadam.org` (symlinked to `/etc/nginx/sites-enabled/penpot.aiqadam.org`)
+- **Vhost (AiQadam prod, T-0111, 2026-07-13):** `/etc/nginx/sites-available/aiqadam.org` (symlinked to `/etc/nginx/sites-enabled/aiqadam.org`) — bare apex only, proxies to `127.0.0.1:3115`
+- **Config (Penpot):** HTTP→HTTPS redirect on port 80; HTTPS on port 443 with `client_max_body_size 367001600`; WebSocket proxy for `/ws/notifications` and `/mcp/ws`; SSE proxy for `/mcp/stream`; general proxy for `/` → `http://localhost:9001/`
+- **Config (AiQadam prod):** HTTP→HTTPS redirect on port 80 (certbot-managed); HTTPS on port 443 proxying `/` → `http://127.0.0.1:3115/`
+- **TLS (Penpot):** Let's Encrypt via certbot 4.0.0; cert at `/etc/letsencrypt/live/penpot.aiqadam.org/` (ECDSA, expires 2026-10-09, intermediate CA `YE1`); auto-renewal via `certbot.timer` (active)
+- **TLS (AiQadam prod):** Let's Encrypt via certbot 4.0.0; cert at `/etc/letsencrypt/live/aiqadam.org/` (ECDSA, expires 2026-10-11); auto-renewal via the same `certbot.timer` (active)
+- **Access URLs:** `https://penpot.aiqadam.org` and `https://aiqadam.org` — both HTTP 200 confirmed from external workstation (step-07 PASS, T-0109 and T-0111 respectively)
 
 ## Network
 
 Verified by discovery run `2026-07-11-discovery-pro-data-tech-prod-001` (probes F, G, supplemental network probe).
 
-- **Cloudflare proxied:** no — this host is not behind any Cloudflare-fronted domain. `landscape/cloudflare.md` and `landscape/domains.md` cover only the Hetzner-backed `ai-dala.com` and `bizdala.com` zones; pro-data.tech is a separate provider with no DNS presence in this project.
+- **Cloudflare proxied:** no — `penpot.aiqadam.org` and `aiqadam.org` (apex) both resolve to this host via Cloudflare DNS (`aiqadam.org` zone, see [`../cloudflare.md`](../cloudflare.md)), but both records are unproxied (`proxied: false`, orange-cloud off) to allow certbot HTTP-01 validation directly against the origin. This note originated at initial discovery (2026-07-11, pre-dating T-0107/T-0109/T-0111) when the host had no DNS presence yet; corrected here now that it does.
 - **Provider-level firewall:** **unknown**. pro-data.tech may or may not provide a control-plane firewall. Per project policy the host should rely on a **host-level firewall** (T-0103) for defense-in-depth.
 - **Host firewall (UFW):** **ACTIVE** (T-0103, 2026-07-11). `ufw default deny incoming`, `ufw default allow outgoing`, `DEFAULT_FORWARD_POLICY="DROP"`. Rules: 22/tcp ALLOW IN Anywhere (v4+v6), 80/tcp ALLOW IN Anywhere (v4+v6), 443/tcp ALLOW IN Anywhere (v4+v6). Backup of pre-run defaults at `/var/backups/ufw-defaults-pre-T0103.bak`. **Docker UFW coexistence block appended to `/etc/ufw/after.rules` (T-0106, 2026-07-11):** DOCKER-USER filter chain (`-A DOCKER-USER -i eth0 -j RETURN`) + MASQUERADE nat rule (`-A POSTROUTING -s 172.16.0.0/12 -o eth0 -j MASQUERADE`); backup at `/var/backups/ufw-after.rules-pre-T0106.bak`.
 - **nftables:** empty ruleset.
@@ -142,13 +166,14 @@ Verified by discovery run `2026-07-11-discovery-pro-data-tech-prod-001` (probes 
   | Port | Process | UFW rule | Notes |
   |---|---|---|---|
   | 22 | sshd | **ALLOW IN** (T-0103) | sshd hardened (T-0102): key-only, `PermitRootLogin prohibit-password`, `PasswordAuthentication no` |
-  | 80 | nginx | **ALLOW IN** (T-0103) | HTTP → HTTPS redirect for penpot.aiqadam.org (T-0109, 2026-07-11) |
-  | 443 | nginx | **ALLOW IN** (T-0103) | HTTPS; TLS via Let's Encrypt; proxies to penpot `localhost:9001` (T-0109, 2026-07-11) |
+  | 80 | nginx | **ALLOW IN** (T-0103) | HTTP → HTTPS redirect for penpot.aiqadam.org (T-0109) and aiqadam.org (T-0111, 2026-07-13) |
+  | 443 | nginx | **ALLOW IN** (T-0103) | HTTPS; TLS via Let's Encrypt; proxies to penpot `localhost:9001` (T-0109) and aiqadam-prod-api `127.0.0.1:3115` (T-0111, 2026-07-13) |
   | 9001 | penpot-frontend (Docker) | No explicit UFW rule; Docker manages own iptables chains | Penpot frontend (T-0108). Port bound to 0.0.0.0 via Docker iptables bypass; nginx is the recommended entry point. |
+  | 3114 | aiqadam-prod-postgres-1 (Docker, `network_mode: host`) | No explicit UFW rule; not reachable externally because 3114 is not in UFW's ALLOW list (deny-incoming default) | AiQadam prod Postgres (T-0111, 2026-07-13). Binds `0.0.0.0:3114`/`[::]:3114` at the process level; protection relies on UFW's default-deny, matching the Penpot postgres precedent. |
 
-- **TCP listeners on loopback only:** `127.0.0.53:53`, `127.0.0.54:53` (systemd-resolved); `127.0.0.1:1080` (penpot-mailcatch, T-0108).
+- **TCP listeners on loopback only:** `127.0.0.53:53`, `127.0.0.54:53` (systemd-resolved); `127.0.0.1:1080` (penpot-mailcatch, T-0108); `127.0.0.1:9998` (aiqadam-prod-oidc-stub-1, T-0111, 2026-07-13); `127.0.0.1:3115` (aiqadam-prod-api-1, T-0111, 2026-07-13).
 - **UDP:** `127.0.0.54:53` and `127.0.0.53:53` (systemd-resolved), `127.0.0.1:323` and `[::1]:323` (chronyd).
-- **Effective exposure today:** SSH port 22 (UFW ALLOW IN). nginx ports 80/443 (UFW ALLOW IN; nginx handles HTTP→HTTPS redirect and TLS for `penpot.aiqadam.org`). Penpot port 9001 bound to 0.0.0.0 via Docker iptables bypass (remains externally accessible; nginx is the recommended entry point). UFW: deny-incoming default; 22/tcp, 80/tcp, 443/tcp explicitly ALLOW IN.
+- **Effective exposure today:** SSH port 22 (UFW ALLOW IN). nginx ports 80/443 (UFW ALLOW IN; nginx handles HTTP→HTTPS redirect and TLS for `penpot.aiqadam.org` and `aiqadam.org`). Penpot port 9001 bound to 0.0.0.0 via Docker iptables bypass (remains externally accessible; nginx is the recommended entry point). AiQadam prod Postgres port 3114 bound to 0.0.0.0/[::]  via Docker `network_mode: host` but not reachable externally (UFW default-deny, no ALLOW rule for 3114). UFW: deny-incoming default; 22/tcp, 80/tcp, 443/tcp explicitly ALLOW IN.
 
 ## Security posture
 
@@ -216,8 +241,8 @@ Verified by discovery run `2026-07-11-discovery-pro-data-tech-prod-001` (probe L
 | `snapd.service` | root | Snap daemon |
 | `apparmor.service` | root | AppArmor MAC (179 profiles, 103 enforce) |
 | `systemd-resolved.service` | root | Local DNS stub on 127.0.0.53 / 127.0.0.54 |
-| `nginx.service` | root | nginx 1.28.3 reverse proxy — **active** and **enabled** (T-0109, 2026-07-11). HTTP→HTTPS redirect on port 80; HTTPS TLS termination on port 443 for `penpot.aiqadam.org`; proxies to `localhost:9001`. |
-| `certbot.timer` | root | Let's Encrypt auto-renewal timer — **active** and **enabled** (T-0109, 2026-07-11). Renews cert for `penpot.aiqadam.org` before expiry (cert expires 2026-10-09). |
+| `nginx.service` | root | nginx 1.28.3 reverse proxy — **active** and **enabled** (T-0109, 2026-07-11; T-0111, 2026-07-13). HTTP→HTTPS redirect on port 80; HTTPS TLS termination on port 443 for `penpot.aiqadam.org` (proxies to `localhost:9001`) and `aiqadam.org` (proxies to `127.0.0.1:3115`, T-0111). |
+| `certbot.timer` | root | Let's Encrypt auto-renewal timer — **active** and **enabled** (T-0109, 2026-07-11; T-0111, 2026-07-13). Renews certs for `penpot.aiqadam.org` (expires 2026-10-09) and `aiqadam.org` (expires 2026-10-11). |
 | `rsyslog.service`, `cron.service`, `dbus.service`, `fwupd.service`, `getty@tty1.service`, `ModemManager.service`, `multipathd.service`, `networkd-dispatcher.service`, `polkit.service`, `serial-getty@ttyS0.service`, `systemd-journald.service`, `systemd-logind.service`, `systemd-networkd.service`, `systemd-udevd.service`, `udisks2.service`, `user@0.service` | root | Standard Ubuntu cloud-image base |
 
 Also present in the image but noted: `open-vm-tools.service` (enabled but not running — unusual for a KVM host; likely baked into the provider image alongside `qemu-guest-agent`).
@@ -240,3 +265,4 @@ No open P1 tasks for this host. Remaining maintenance gaps (auditd, pending pack
 | 2026-07-11 | `2026-07-11-install-docker-pro-data-tech-prod-001` | T-0106: Docker CE 29.6.1 + Compose plugin v5.3.1 installed from official Docker apt repo (keyring method, resolute stable channel). docker.service enabled+active. containerd.io 2.2.6 as runtime. UFW after.rules appended with DOCKER-USER coexistence block (eth0-scoped MASQUERADE 172.16.0.0/12); backup at /var/backups/ufw-after.rules-pre-T0106.bak. tvolodi added to docker group (gid 986). `docker run hello-world` verified. |
 | 2026-07-11 | `2026-07-11-deploy-penpot-pro-data-tech-prod-001` | T-0108: Penpot 2.16 deployed via Docker Compose at /opt/penpot/ (7 containers: penpot-frontend, penpot-backend, penpot-exporter, penpot-mcp, penpot-postgres, penpot-valkey, penpot-mailcatch). MCP enabled. PENPOT_PUBLIC_URI=https://penpot.aiqadam.org. Frontend HTTP 200 on localhost:9001. Mailcatch bound to 127.0.0.1:1080. .env mode 600 (owner root). nginx+HTTPS pending (T-0109). |
 | 2026-07-11 | `2026-07-11-nginx-letsencrypt-penpot-aiqadam-org-001` | T-0109: nginx 1.28.3 installed and active; vhost `/etc/nginx/sites-available/penpot.aiqadam.org` created (HTTP→HTTPS redirect, HTTPS TLS termination, WebSocket/SSE/general proxy to localhost:9001). Let's Encrypt cert obtained (ECDSA, expires 2026-10-09, CA YE1); certbot.timer active for auto-renewal. `https://penpot.aiqadam.org` confirmed HTTP 200 from external workstation. Penpot fully operational. |
+| 2026-07-13 | `2026-07-13-setup-aiqadam-prod-infra-001` | T-0111: AiQadam prod app stack deployed — Compose project `aiqadam-prod` at `/opt/apps/aiqadam-prod/` (git HEAD `dfd2a7c`; 3 containers: `aiqadam-prod-postgres-1` postgres:16 on `3114`, `aiqadam-prod-oidc-stub-1` nginx:alpine on `127.0.0.1:9998`, `aiqadam-prod-api-1` on `127.0.0.1:3115`), dedicated `aiqadam_prod` database; additive nginx vhost `/etc/nginx/sites-available/aiqadam.org` (bare apex only); Let's Encrypt cert for `aiqadam.org` obtained (ECDSA, expires 2026-10-11); Cloudflare apex A record `bf1113199732117bd147ebd87d6e356d` repointed `212.20.151.29`→`95.46.211.224`, `proxied` true→false. `https://aiqadam.org/health` confirmed 200; Penpot confirmed unregressed (7/7 containers, external 200) at every checkpoint. Corrected prior landscape documentation error: the RSA `.ppk` key does NOT work for `tvolodi` (root break-glass only) — `ai-dala-infra` ED25519 is the correct `tvolodi` key, matching the QA host's pattern. Known gap: no Redis/Valkey service (ioredis ECONNREFUSED, non-blocking) — tracked as a new task. |
