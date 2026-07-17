@@ -1,0 +1,41 @@
+---
+run_id: 2026-07-14-ssh-deploy-keys-aiqadam-001
+step: 03
+agent: task-validator
+verdict: PASS
+created: 2026-07-14T00:00:00Z
+task_id: T-0112-github-actions-ssh-deploy-keys-aiqadam
+inputs_read:
+  - runs/2026-07-14-ssh-deploy-keys-aiqadam-001/step-01-task-reader.md
+  - runs/2026-07-14-ssh-deploy-keys-aiqadam-001/step-02-landscape-reader.md
+  - tasks/T-0112-github-actions-ssh-deploy-keys-aiqadam.md
+  - workflows/infrastructure.md
+artifacts_changed: []
+next_step_hint: solution-designer must treat the AllowGroups sshusers fork as a first-class design decision (propose add-deploy-to-sshusers vs. extend-AllowGroups-with-second-group, with a recommendation, and let the user confirm/override alongside the task's own two flagged open questions — forced-command vs shell login, dedicated user vs operator reuse). Given this touches the sshd drop-in on two hosts (one carrying a live Penpot workload) plus three open design questions, expect solution-designer to land on NEEDS_APPROVAL rather than auto-PASS. Solution-designer's plan should include a live stat/getent pre-flight check for checkout directory ownership and deploy-user non-existence before any mutating command, and a backup of the sshd drop-in per workflow rule 2.
+---
+
+## Summary
+Task T-0112 is validated and ready for solution-designer — all six checks pass; the AllowGroups sshusers constraint and the deploy-user-vs-group design fork are open design decisions for step 04 to propose and the user to confirm, not blockers to validation.
+
+## Details
+### Validation results
+1. Well-formed: PASS — The task names a concrete, verifiable end state: two ed25519 keypairs generated, public keys installed for a scoped deploy identity on each host, private keys landed as named GitHub Actions secrets (never in this repo), host keys pinned as secrets, `landscape/secrets-inventory.md` updated with names only, and a live SSH login + `docker compose` test before done. All six acceptance-criteria items are concrete and checkable, not vague intent.
+
+2. In-scope: PASS — This is new-user/access provisioning, authorized_keys configuration, and (per the landscape finding) an sshd drop-in edit on managed hosts — all explicitly listed under `workflows/infrastructure.md` § "When this workflow applies" ("New tool installation or removal on managed hosts", implicitly covers access/OS config of this kind, consistent with how T-0102/T-0105-style host-hardening and user-provisioning tasks have been scoped in this repo). No part of this task (GitHub repo secret-setting) falls outside infrastructure's remit in a disqualifying way — it's a necessary adjunct step the designer/executor must sequence, not a different workflow.
+
+3. Not already done: PASS — Step 02's landscape-reader did a full-text scan of both host landscape files for "deploy" and found no `deploy` user, no `deploy`-named SSH key, and no `deploy`-specific sudoers drop-in on either host (local-users enumeration lists only `root`, `tvolodi`, `viktor_d`, `binali_r`, `nobody`). Target state is not in place on either host.
+
+4. No conflict with current state: PASS — The `AllowGroups sshusers` directive does not forbid adding a new SSH-authenticating identity; it is a gate that any new user must clear by one of two means (join `sshusers`, or extend `AllowGroups` with a second group). Neither option contradicts an explicit landscape fact of the "nginx is required, do not remove" variety — there is no stated landscape rule that `sshusers` must remain exactly `{root, tvolodi, viktor_d, binali_r}` forever, or that `AllowGroups` must never gain a second group. This is a concrete, solvable constraint the design must accommodate, structurally identical to how T-0110/T-0111 resolved app-behavior surprises (undocumented port conflicts, compose quirks) during their own design steps rather than failing validation. Recommend solution-designer propose both options explicitly (join `sshusers` — simplest, but grants deploy the same AllowGroups admission tier as human operators; vs. add a second `AllowGroups` entry — cleaner separation of CI identity from human-operator gate, more config surface / a second drop-in edit to maintain) and let the user pick, exactly as the task's own two flagged open questions (forced-command vs. shell login; dedicated user vs. operator reuse) are already slated to be resolved at step 04. This is a design decision, not a validation failure.
+
+5. Discoverable scope: PASS — The one landscape gap (checkout directory owner/mode for `/opt/apps/aiqadam-qa/` and `/opt/apps/aiqadam-prod/` — only the `.env` files inside `deploy/` are documented, and only prod's is stated as `tvolodi:tvolodi`) is explicitly flagged by landscape-reader as a live-discovery item, not a critical unknown. It doesn't block designing the shape of the solution (new deploy user + docker group + some access to the checkout path); it only affects the exact `chown`/`usermod`/ACL commands, which can be finalized after a live `stat`/`ls -la` pre-flight check that the designer's plan should call for. No other critical unknowns remain: docker group GID (986) is consistently documented on both hosts, sshd drop-in precedence and content is fully documented, and the git-remote credential path for `git pull` (assumed public HTTPS clone, unconfirmed) is a low-risk assumption the designer can flag rather than a blocker.
+
+6. Workflow-specific rules respected: PASS — (a) Idempotency: useradd, authorized_keys installation, and an AllowGroups edit are all idempotent operations that can be checked-then-applied (`id deploy`, grep-before-append on the drop-in) — satisfiable per workflow rule 1. (b) Backup before destructive changes: the sshd drop-in edit overwrites a config file, so workflow rule 2 requires the executor to back it up first (e.g., copy `40-ai-dala-infra.conf` to a timestamped path) before editing — straightforwardly satisfiable, and should be called out explicitly in the step-04 plan. (c) Verify in two places: the task's own acceptance criterion 6 (live SSH test + docker compose run) already satisfies "externally-observable behavior," and a host-side check (`id deploy`, `sshd -T | grep -i allowgroups`, `getent group docker`) satisfies "change on the host" — both are already anticipated by the task and landscape-reader's findings, so workflow rule 3 is satisfiable without new invention.
+
+## Issues / risks
+- The AllowGroups sshusers fork is a bigger touch than "just add a user" — it is an edit to a project-managed sshd drop-in on both hosts. This raises the task's practical blast radius above what its own frontmatter (`estimated_blast_radius: medium`) may have anticipated if read narrowly. Flagging for solution-designer to weigh explicitly when choosing its own verdict (PASS vs. NEEDS_APPROVAL) at step 04 — this validator does not pre-empt that call, since blast-radius/approval-routing judgment belongs to step 04 per the verdict vocabulary, not step 03.
+- Three open design questions now converge on step 04: (i) forced-command vs. general shell login (task's own recommendation: forced-command), (ii) dedicated deploy user vs. operator-account reuse (task's own recommendation: dedicated user), and (iii) join existing `sshusers` vs. extend `AllowGroups` with a second group (newly surfaced by landscape-reader, no task-stated recommendation). Solution-designer should present all three together as one coherent design, not resolve any silently.
+- Prod host carries a live Penpot stack under `/opt/penpot/` sharing the same Docker daemon (`network_mode: host`) — any docker-group membership or socket-adjacent grant for the new deploy user must be scoped to avoid incidental Penpot access. Already flagged by landscape-reader; carrying forward as a design constraint, not a validation blocker.
+- Checkout-directory owner/mode gap (both hosts) should be resolved by a live `stat`/`ls -la` check as the first step of the executor's plan, before any `chown`/`usermod -aG` command is finalized.
+
+## Open questions (optional)
+none — task is validated and unblocked; the three design forks above are for solution-designer (step 04) to propose and the user to confirm/override, not open questions requiring resolution before design can start.

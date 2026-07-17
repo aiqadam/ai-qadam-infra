@@ -1,6 +1,6 @@
 # ai-qadam-infra — Claude Code entry point
 
-This is the management project for the ai-qadam infrastructure. In scope: two servers — `ubuntu-16gb-nbg1-1` (Hetzner project "ai-qadam", 46.225.239.60) and `pro-data-tech-qa` (pro-data.tech, 95.46.211.230) — plus the AiQadam application QA environment running on `pro-data-tech-qa`.
+This is the management project for the ai-qadam infrastructure. In scope: three servers — `ubuntu-16gb-nbg1-1` (Hetzner project "ai-qadam", 46.225.239.60), `pro-data-tech-qa` (pro-data.tech, 95.46.211.230), and `pro-data-tech-prod` (pro-data.tech, 95.46.211.224) — plus the AiQadam application QA and prod environments (running on `pro-data-tech-qa` and `pro-data-tech-prod` respectively), the Penpot design tool (on `pro-data-tech-prod`), and the `aiqadam.org` Cloudflare zone (shared, partially-owned — see [`landscape/cloudflare.md`](./landscape/cloudflare.md) for the full record inventory and ownership boundaries).
 
 ## Operating model
 

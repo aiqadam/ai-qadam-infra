@@ -2,15 +2,15 @@
 id: T-0112-github-actions-ssh-deploy-keys-aiqadam
 title: Provision GitHub Actions SSH deploy keys for aiqadam QA and prod hosts
 kind: task
-status: pending
+status: in-progress
 priority: P1
 created: 2026-07-12
-updated: 2026-07-12
+updated: 2026-07-14
 closed:
 outcome:
 created_by: manual
 source_runs: []
-executed_by_runs: []
+executed_by_runs: [2026-07-14-ssh-deploy-keys-aiqadam-001]
 affects:
   - landscape/hosts/pro-data-tech-qa.md
   - landscape/hosts/pro-data-tech-prod.md
@@ -46,3 +46,4 @@ GitHub Actions needs to SSH into `pro-data-tech-qa` and `pro-data-tech-prod` to 
 
 ## History
 - 2026-07-12: created manually by orchestrator as part of the AiQadam CI/CD pipeline task chain
+- 2026-07-14: status → in-progress, run 2026-07-14-ssh-deploy-keys-aiqadam-001
