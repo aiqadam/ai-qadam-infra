@@ -1,0 +1,65 @@
+---
+run_id: 2026-07-17-cicd-workflow-aiqadam-001
+step: 03
+agent: task-validator
+verdict: PASS
+created: 2026-07-17T07:28:53Z
+task_id: T-0113-github-actions-cicd-workflow-aiqadam-platform
+inputs_read:
+  - runs/2026-07-17-cicd-workflow-aiqadam-001/step-01-task-reader.md
+  - runs/2026-07-17-cicd-workflow-aiqadam-001/step-02-landscape-reader.md
+  - tasks/T-0113-github-actions-cicd-workflow-aiqadam-platform.md
+  - tasks/T-0112-github-actions-ssh-deploy-keys-aiqadam.md
+  - landscape/hosts/pro-data-tech-qa.md
+  - landscape/hosts/pro-data-tech-prod.md
+  - shared/deploy-protocol.md
+  - workflows/cicd.md
+  - shared/handoff-format.md
+  - shared/verdicts.md
+next_step_hint: solution-designer (step 04) must resolve, as design decisions (not re-litigate as validity questions) — (1) exact mechanism for `deploy.sh` to learn which git ref to deploy given the forced-command SSH restriction has no argument passthrough by default (e.g., scp a ref file before invoking the forced command, or always deploy latest `main`/tag-at-dispatch-time); (2) whether GitHub Environment `production` already exists in `aiqadam/ai-qadam-platform` repo settings (needs a `gh api repos/aiqadam/ai-qadam-platform/environments` check) or must be created as part of this task; (3) test suite maturity (`turbo run test` — real suites vs. stubs) to decide whether `build` blocks on tests or just build/typecheck; (4) how `deploy.sh` will be updated on-host (workflow scp's a new script version, or the script is written once now and only reads a ref file thereafter) — ties into (1). Plan must also explicitly state in its own text that `deploy.yml` (Coolify) and `ci.yml` (advisory) are untouched by this task, per the two user scope decisions recorded in this run.
+
+## Summary
+T-0113 validates as sound and ready for solution design: the task names a concrete end state, `cicd` is the correct workflow, the target state is not already in place, the two live user scope decisions (leave Coolify/`ci.yml` untouched; the new workflow's own `build` gate is self-contained) resolve the only real conflict risk, and all landscape facts needed to design a solution are either already documented or explicitly flagged as step 04 design questions — no unresolved unknowns block design.
+
+## Details
+### Validation results
+
+1. **Well-formed: PASS** — The task's "What done looks like" checklist names concrete, independently verifiable end states: a specific file (`.github/workflows/ci-cd.yml`) with named jobs (`build`, `deploy-qa`, `deploy-prod`) each with stated trigger conditions and pass/fail semantics, a named GitHub Environment (`production`) with required reviewers, specific secret names to be used, and two specific file updates (`shared/app-registry.md`, `shared/deploy-protocol.md`). This is not a vague intent — each checklist item is testable by inspection of the resulting file and repo settings.
+
+2. **In-scope: PASS** — `workflows/cicd.md`'s "When this workflow applies" explicitly lists "Pipeline configuration changes (when those pipelines are managed from this repo)" and binds step 06 to `executor-cicd`. Authoring a GitHub Actions workflow file that builds, tests, and deploys to managed hosts is squarely cicd's purpose, not infrastructure's (host OS/network config). The task file's frontmatter `workflow:` field already reads `cicd` (corrected 2026-07-17 per the task's own Notes/History, user-confirmed at run start) — consistent with step 01's finding. No further correction needed at this step.
+
+3. **Not already done: PASS** — Both hosts' `deploy.sh` remain the T-0112 placeholder (marker line + `docker compose ... ps`), explicitly documented in both host landscape files as "to be replaced by T-0113's real CI/CD deploy logic." No `.github/workflows/ci-cd.yml` exists in the aiqadam repo (step 02's live probe enumerated exactly 7 existing workflow files — `deploy.yml`, `ci.yml`, `content-quality.yml`, `deploy-web-next.yml`, `parity-check.yml`, `restic-drill-lint.yml`, `smoke.yml`, `supply-chain.yml` — none named `ci-cd.yml`, none referencing any of the four T-0112 secrets). The target state is unambiguously not in place.
+
+4. **No conflict with current state: PASS**, conditioned on the two user scope decisions now recorded in this run's context, which resolve what would otherwise have been the task's most serious validity risk:
+   - Step 02 surfaced that `deploy.yml` (Coolify-based CD, deploying `web`/`api` via `COOLIFY_TOKEN` on push to `main`) is already active in the same repo, on the same trigger (push to `main`). Left unaddressed, this would have been a genuine conflict candidate — two independent CD pipelines both firing on every push to `main`, potentially deploying to different targets under the same name with no coordination. The user's explicit decision ("leave the Coolify `deploy.yml` pipeline completely untouched... added alongside it as an independent, separate file") converts this from a conflict into a deliberate, informed coexistence: Coolify's `web`/`api` deploy target is a distinct system from `pro-data-tech-qa`/`pro-data-tech-prod` (nothing in the landscape or step 02's probe indicates Coolify deploys to either of these two hosts), so the new `ci-cd.yml` and the existing `deploy.yml` do not act on the same target — they are parallel, not competing, pipelines. This is a scope decision the task file itself does not address, and it did not exist as landscape fact before this run; it is now settled by direct user instruction and treated as binding on step 04.
+   - Step 02 also flagged that the task's "build fails the workflow on any failure" requirement seems to cut against `ci.yml`'s deliberately advisory-only (`continue-on-error: true`) posture, set by an explicit prior user decision (2026-06-29/07-03). The user's second scope decision here ("the new `ci-cd.yml`'s own `build` job hard-fails and blocks its own `deploy-qa`/`deploy-prod` jobs — this gate applies only to the new workflow... `ci.yml`'s advisory-only behavior is NOT to be touched or reconsidered") makes explicit that the two workflows' gating philosophies are intentionally different and independent — `ci-cd.yml`'s `build` job is a new, separate quality gate scoped only to its own deploy jobs, not a reversal of the earlier `ci.yml` decision. No conflict.
+   - No other landscape fact contradicts the task. The forced-command restriction on `deploy` (both hosts) does not conflict with the task — it constrains *how* the deploy step must be implemented (a step 04 design question, see check 5) but does not make the task impossible or contradict any of its stated acceptance criteria.
+
+5. **Discoverable scope: PASS**, with open design questions correctly deferred to step 04 rather than blocking here:
+   - **SSH forced-command / ref-passing mechanism:** landscape confirms `authorized_keys` on both hosts restricts the deploy CI key to `command="/opt/apps/aiqadam-<env>/deploy/deploy.sh"`, `no-pty`, with the placeholder script taking no arguments today. This is a real constraint requiring a design decision (e.g., `scp` a ref file to a path `deploy.sh` reads before invoking the forced command over SSH — the forced command executes regardless of what the SSH client sends, but a prior `scp` in the same job can stage state; or read `$SSH_ORIGINAL_COMMAND` inside `deploy.sh` since OpenSSH still sets that env var even under a forced `command=`; or simplest, have `deploy.sh` always `git fetch && git checkout` a moving branch/tag with no ref parameterization needed for QA, and accept a tag/ref via the `scp`-a-file approach for prod's manual promote). All of these are viable, well-understood patterns — this is squarely a solvable design problem, not a missing-fact blocker. Flagged for step 04, not resolved here per this step's charter.
+   - **GitHub Environment `production` existence:** not yet checked via `gh api`. This is a live discoverability item step 04 (or the executor) can resolve with one `gh` command; its absence today does not block designing a plan that creates it if missing.
+   - **Test suite maturity:** `package.json` confirms `pnpm test` (via `turbo run test`), `pnpm typecheck`, `pnpm lint` (biome) all exist as real scripts (not fabricated) — so the `build` job has real commands to run. Whether `turbo run test` resolves to meaningful suites or no-op stubs per-package is unverified but is a low-risk unknown: worst case, `build` job runs `pnpm test` and it either passes trivially or fails meaningfully — either outcome is compatible with the task's stated behavior ("fails the workflow on any failure"). Not a blocker; step 04 should confirm and document its choice.
+   - No critical unknown remains unflagged. All three items above are already explicitly named in the task file's own "Open questions" section, step 01, or step 02's gaps list — nothing new or unaddressed is being surfaced at this step.
+
+6. **Workflow-specific rules respected: PASS** — `workflows/cicd.md` states three rules, all satisfiable by a step 04 plan for this task:
+   - *"No deploy without a known-good rollback"*: satisfiable — both hosts' current deploys are pinned at detached-HEAD commit `dfd2a7c` (confirmed by both host landscape files); a rollback step (re-run `deploy.sh` against the prior known-good ref/commit) is a natural and mechanical fit for the same forced-command deploy path the new workflow will use. Step 04 must specify this explicitly per the rule; nothing about the task prevents it.
+   - *"Health check after deploy"*: satisfiable — both QA and prod already have live, working health endpoints (`GET https://qa-uz.aiqadam.org/health` → 200, `GET https://aiqadam.org/health` → 200), confirmed current in both host landscape files. `deploy-qa`/`deploy-prod` jobs can curl these directly.
+   - *"Version recorded in landscape"*: satisfiable — `landscape/services.md` and `shared/app-registry.md` both already track this app's containers/versions; the task's own acceptance criteria already require an `app-registry.md` CI/CD section, and step 08's normal per-run landscape update covers the "new running version, timestamp" requirement for actual deploys once T-0114/T-0115 execute against the new pipeline.
+
+### Secrets confirmation (per step-specific input)
+T-0112 status is `done` (confirmed by direct read of `tasks/T-0112-github-actions-ssh-deploy-keys-aiqadam.md`: `status: done`, `outcome: succeeded`, `closed: 2026-07-17`, History log shows "All four secrets... set in `aiqadam/ai-qadam-platform` via `gh secret set`... Confirmed present via `gh secret list`. T-0113... is now unblocked."). This corrects the stale caveat step 02 carried forward (it read T-0112 as `in-progress` because it ran before the secrets paste completed later in this same conversation). Treated as fully resolved — not a gap, not a risk. `blocked_by: [T-0112]` in T-0113's frontmatter is satisfied.
+
+### Coolify / ci.yml out-of-scope confirmation
+Both existing files are confirmed out of scope for this task's plan, per the two user scope decisions relayed in this step's input:
+- `.github/workflows/deploy.yml` (Coolify) — must not be disabled, modified, or reconciled with. The new `ci-cd.yml` is purely additive.
+- `.github/workflows/ci.yml` (advisory-only) — must not be touched or have its `continue-on-error: true` behavior reconsidered. The new workflow's `build` job is a separate, independently-gating job that only blocks the new `deploy-qa`/`deploy-prod` jobs.
+
+Step 04's plan must state both of these constraints explicitly in its own text (not merely inherit them silently) so that step 06 (executor-cicd) does not inadvertently touch either file.
+
+## Issues / risks
+- None blocking. The forced-command ref-passing mechanism (check 5) is the single largest design surface area in this task and carries some execution risk if step 04 picks a fragile approach (e.g., relying on `$SSH_ORIGINAL_COMMAND` inside a forced command can be brittle across OpenSSH/PAM configurations — T-0112's own execution history notes this host's sshd/PAM build had at least one prior surprise around forced-command behavior, i.e. the `nologin`-incompatibility deviation). Recommend step 04 prefer the simpler `scp`-a-ref-file-then-invoke approach over relying on `SSH_ORIGINAL_COMMAND`, given that prior surprise, but this is a design recommendation, not a validation failure.
+- `deploy-prod`'s required-reviewers GitHub Environment gate requires direct `gh`/GitHub UI repo-settings access at execution time (step 06), a different capability surface than the SSH/file-editing access used for most infra tasks. Not a validity blocker, but step 04 should confirm this access path explicitly in its plan so step 06 isn't surprised.
+- `landscape/README.md` drift (noted by step 02: stale host list, stale cloudflare.md/domains.md description) is unrelated to this task and does not affect this validation; not re-flagged as an issue here beyond this note.
+
+## Open questions (optional)
+none — verdict is PASS, not BLOCKED. All open items above are correctly scoped as step 04 design questions, not unresolved validity gaps.

@@ -1,8 +1,8 @@
 ---
 name: app-registry
-last_updated: 2026-07-13
+last_updated: 2026-07-17
 ---
-<!-- last_updated bumped by T-0111 (2026-07-13, run 2026-07-13-setup-aiqadam-prod-infra-001): added the Production environment section and the Redis/Valkey gap note to the QA section. -->
+<!-- last_updated bumped by T-0113 (2026-07-17, run 2026-07-17-cicd-workflow-aiqadam-001): added the CI/CD subsection (ci-cd.yml, production Environment, host deploy.sh replacement, QA rehearsal). Prior: T-0111 (2026-07-13, run 2026-07-13-setup-aiqadam-prod-infra-001) added the Production environment section and the Redis/Valkey gap note to the QA section. -->
 
 # App registry
 
@@ -70,6 +70,26 @@ Authoritative list of application projects managed by this infra repo. Migrated 
 | **TLS** | Separate Let's Encrypt cert for `aiqadam.org` (ECDSA, issued 2026-07-13, expires 2026-10-11), auto-renewing via the same `certbot.timer` already active on the host. Penpot's own cert (`penpot.aiqadam.org`, expires 2026-10-09) is fully independent and unaffected. |
 | **Deploy status** | Done 2026-07-13 ([T-0111](../tasks/T-0111-setup-aiqadam-prod-deploy-infra-pro-data-tech-prod.md)) — all 3 containers healthy (`RestartCount=0`), nginx + Let's Encrypt TLS live, Penpot confirmed unregressed (7/7 containers, external 200) at every checkpoint throughout execution. |
 | **Next milestone** | [T-0112](../tasks/T-0112-github-actions-ssh-deploy-keys-aiqadam.md) (deploy keys) and [T-0113](../tasks/T-0113-github-actions-cicd-workflow-aiqadam-platform.md) (CI/CD workflow), then [T-0115](../tasks/T-0115-first-promote-aiqadam-to-prod.md) (first CI-driven promotion to this prod host). |
+
+### CI/CD
+
+Authored 2026-07-17 ([T-0113](../tasks/T-0113-github-actions-cicd-workflow-aiqadam-platform.md), run `2026-07-17-cicd-workflow-aiqadam-001`). **Status: open PR, not yet merged to `main`** — [PR #15](https://github.com/aiqadam/ai-qadam-platform/pull/15) (`add-ci-cd-workflow` → `main`, head commit `ee5688a84c4ef0b6fad182c2c33acf12e4ee8730`) is open and mergeable but has not been merged. The `deploy-qa` job will not fire for real until the user merges this PR — that merge is a deliberate, user-initiated action taken at a time of their choosing (see [T-0113](../tasks/T-0113-github-actions-cicd-workflow-aiqadam-platform.md) history / run `2026-07-17-cicd-workflow-aiqadam-001` step-05 for why direct push to `main` was not used: an active repository ruleset, `protect-branch` id `18687633`, requires all changes to land via PR).
+
+| Property | Value |
+|---|---|
+| **Workflow file** | `.github/workflows/ci-cd.yml` in `aiqadam/ai-qadam-platform` (new, independent of `deploy.yml`/`ci.yml` — neither touched) |
+| **Jobs** | `build` (all branches/PRs — install, lint, typecheck, test, build, verify Docker image build; hard-fails, independent gate from `ci.yml`'s advisory posture); `deploy-qa` (auto, push to `main`, needs `build`); `deploy-prod` (manual, `workflow_dispatch` with a `git_ref` input, needs `build`, gated by the `production` GitHub Environment's required reviewers) |
+| **Ref-passing mechanism** | `SSH_ORIGINAL_COMMAND` read inside `deploy.sh` on each host, format `deploy:<7-40 hex char commit SHA>`, validated by regex `^deploy:([0-9a-fA-F]{7,40})$` + `git cat-file -e "<ref>^{commit}"` after `git fetch`, before checkout |
+| **Rollback marker** | `/opt/apps/aiqadam-<env>/deploy/.last-deployed-commit` (current) and `.last-deployed-commit.previous` (prior), written by `deploy.sh` before every checkout |
+| **`production` GitHub Environment** | Created 2026-07-17, required reviewer: `tvolodi` (GitHub user id `25960910`), `deployment_branch_policy: null`, `wait_timer: 0` |
+| **Secrets used (names only)** | `QA_SSH_DEPLOY_KEY`, `QA_SSH_HOST_KEY`, `PROD_SSH_DEPLOY_KEY`, `PROD_SSH_HOST_KEY` |
+| **Note** | `deploy.yml` (Coolify) and `ci.yml` (advisory) are separate, untouched pipelines in the same repo — not related to this CI/CD section. |
+
+**Host-side `deploy.sh` (both `pro-data-tech-qa` and `pro-data-tech-prod`):** replaced 2026-07-17, replacing the T-0112 placeholder. Pre-change backups: `deploy.sh.pre-T0113.20260717T081516Z.bak` (QA), `deploy.sh.pre-T0113.20260717T081828Z.bak` (prod), both in the respective host's `deploy/` directory. Script never runs `git clean` (hard constraint, verified — the only occurrences of the string in the file are in its own prohibition comments).
+
+**QA rehearsal (live, 2026-07-17):** self-deploy of the pinned commit `dfd2a7c479c18e9acea5b3e0f53e19aca3f777bb` run directly over SSH against `deploy.sh` (not via GitHub Actions, since the workflow isn't on `main` yet) — succeeded, health check `200`, both containers `Up (healthy)`, marker files correctly recorded. **Prod's `deploy.sh` was replaced and syntax-checked (`bash -n`, `SYNTAX_OK`) but deliberately NOT invoked** — first real prod use is deferred to [T-0115](../tasks/T-0115-first-promote-aiqadam-to-prod.md) under the required-reviewer gate.
+
+**Host permission fix (not anticipated by the original plan):** on both hosts, the app checkout (`/opt/apps/aiqadam-<env>/`, including `.git/`) is owned `tvolodi:tvolodi` with group-write bits (`775`) but the `deploy` CI user was not a member of the `tvolodi` group, so `git fetch`/`checkout` as `deploy` failed with "dubious ownership" and then a `.git/FETCH_HEAD` permission error. Fixed by: (1) `sudo -u deploy git config --global --add safe.directory /opt/apps/aiqadam-qa` (QA only — prod's script was never invoked as `deploy`, so this was not needed there to satisfy the plan, though the same gap exists), and (2) `sudo usermod -aG tvolodi deploy` on both hosts (additive group grant, mirrors the existing `aiqadam-<env>-secrets` group-grant pattern from T-0112). No file ownership or mode was changed as part of this fix.
 
 ---
 

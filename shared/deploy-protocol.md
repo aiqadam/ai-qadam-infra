@@ -88,3 +88,21 @@ MUST halt and report `BLOCKED` — do not guess a ref.
 
 Setup tasks use the `infrastructure` workflow (nginx, DNS, UFW, directories) because
 they change host-level config. Actual deploys use `deploy-app`.
+
+---
+
+## Exception: AiQadam's CI-driven pipeline (T-0113) does not use the signal-file convention
+
+The AiQadam `ci-cd.yml` pipeline in `aiqadam/ai-qadam-platform` (added by
+[T-0113](../tasks/T-0113-github-actions-cicd-workflow-aiqadam-platform.md)) does **not**
+write or read `tasks/deploy-request.md`. The signal-file convention above models a
+*pre-action request* a project agent leaves for a human to relay to the infra
+orchestrator, which then runs an 8-step `deploy-app` workflow. AiQadam's pipeline is
+CI-triggered and self-contained instead: `deploy-qa` fires automatically on push to
+`main`, and `deploy-prod` fires on a human-approved `workflow_dispatch`, with no
+infra-orchestrator run in the loop at deploy time. Writing the signal file after the
+fact would be a post-hoc record, not a request, and nothing downstream reads it for
+this path — so it is intentionally not wired in. Rollback and ref-tracking for this
+pipeline are handled instead by `deploy.sh`'s own
+`.last-deployed-commit`/`.last-deployed-commit.previous` marker files on each host (see
+[`app-registry.md`](./app-registry.md)'s AiQadam CI/CD subsection).

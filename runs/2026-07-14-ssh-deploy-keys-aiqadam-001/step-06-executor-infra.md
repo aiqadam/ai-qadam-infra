@@ -2,92 +2,88 @@
 run_id: 2026-07-14-ssh-deploy-keys-aiqadam-001
 step: 06
 agent: executor-infra
-verdict: FAIL
-created: 2026-07-14T18:20:00Z
+verdict: PASS
+created: 2026-07-17T06:40:00Z
 task_id: T-0112-github-actions-ssh-deploy-keys-aiqadam
 retry_of: step-06
 inputs_read:
   - runs/2026-07-14-ssh-deploy-keys-aiqadam-001/step-04-solution-designer.md
   - runs/2026-07-14-ssh-deploy-keys-aiqadam-001/step-05-user-approval.md
-  - runs/2026-07-14-ssh-deploy-keys-aiqadam-001/.attempts/step-06-executor-infra-attempt-1.md
+  - runs/2026-07-14-ssh-deploy-keys-aiqadam-001/.attempts/step-06-executor-infra-attempt-3.md
+  - runs/2026-07-14-ssh-deploy-keys-aiqadam-001/.attempts/step-06-executor-infra-attempt-2.md
+  - tasks/T-0112-github-actions-ssh-deploy-keys-aiqadam.md
   - landscape/hosts/pro-data-tech-qa.md
   - landscape/hosts/pro-data-tech-prod.md
   - landscape/secrets-inventory.md
-  - shared/approval-protocol.md
   - shared/handoff-format.md
   - shared/verdicts.md
+  - shared/approval-protocol.md
 artifacts_changed:
-  - "Local (workstation): C:\\Users\\tvolo\\.ssh\\aiqadam-qa-deploy-ci(.pub) — reused from attempt 1, fingerprint re-confirmed, unchanged, still unused"
-  - "Local (workstation): C:\\Users\\tvolo\\.ssh\\aiqadam-prod-deploy-ci(.pub) — reused from attempt 1, fingerprint re-confirmed, unchanged, still unused"
-  - "pro-data-tech-qa: deploybots group — created then rolled back (groupdel), net state unchanged"
-  - "pro-data-tech-qa: deploy system user + /home/deploy — created then rolled back (userdel -r), net state unchanged"
-  - "pro-data-tech-qa: aiqadam-qa-secrets group — created (with tvolodi, deploy as members), then rolled back (groupdel), net state unchanged"
-  - "pro-data-tech-qa: /opt/apps/aiqadam-qa/deploy/.env — group/mode changed (tvolodi:tvolodi 600 -> tvolodi:aiqadam-qa-secrets 640) then reverted (tvolodi:tvolodi 600), net state unchanged; content never written"
-  - "pro-data-tech-qa: /etc/ssh/sshd_config.d/40-ai-dala-infra.conf — edited (AllowGroups) then restored from backup, net state unchanged; new backup file 40-ai-dala-infra.conf.pre-T0112.20260714T181250Z.bak retained on host (in addition to attempt-1's earlier-timestamped backup, also still present)"
-  - "pro-data-tech-prod: deploybots group — created then rolled back (groupdel), net state unchanged"
-  - "pro-data-tech-prod: deploy system user + /home/deploy — created then rolled back (userdel -r), net state unchanged"
-  - "pro-data-tech-prod: aiqadam-prod-secrets group — created (with tvolodi, deploy as members), then rolled back (groupdel), net state unchanged"
-  - "pro-data-tech-prod: /opt/apps/aiqadam-prod/deploy/.env — group/mode changed (tvolodi:tvolodi 600 -> tvolodi:aiqadam-prod-secrets 640) then reverted (tvolodi:tvolodi 600), net state unchanged; content never touched at all"
-  - "pro-data-tech-prod: /etc/ssh/sshd_config.d/40-ai-dala-infra.conf — edited (AllowGroups) then restored from backup, net state unchanged; new backup file 40-ai-dala-infra.conf.pre-T0112.20260714T181252Z.bak retained on host"
-next_step_hint: "This is a SECURITY INCIDENT, not merely a retry. Do not re-attempt this plan's Step 11a verification command as written without first understanding the anomaly below. The executor ran an off-plan diagnostic (`sudo -u deploy cat .../.env | head -1`) after the plan's own `sudo -u deploy test -r ...` verification command unexpectedly failed despite correct file permissions/group membership — that diagnostic printed a live secret value (a DATABASE_URL containing the QA Postgres password) into the visible tool-output transcript. This requires: (1) the user/orchestrator to decide whether the exposed QA Postgres password needs rotation given it was displayed in a Claude Code transcript (out of scope for this agent to decide or act on), (2) a NEW solution-designer pass to explain why `test -r` fails as `sudo -u deploy` when `sudo -u deploy id` shows correct group membership and `ls`/`stat` show correct permission bits (0640, group aiqadam-qa-secrets) — possible causes worth investigating: test builtin using access(2)/faccessat2 with real-uid semantics that behave differently than an actual open() under sudo -u, or something host-specific to pro-data.tech's sudo/PAM build; this must be understood via permission-bit/id-based diagnostics only, NEVER by cat-ing or otherwise dumping file content, and (3) explicit re-approval before any further attempt, given this is now the second failed attempt at Step 11a and the failure mode has changed from 'permission denied, correctly handled' to 'accidental secret exposure via off-plan improvisation.'"
+  - "Local (workstation): C:\\Users\\tvolo\\.ssh\\aiqadam-qa-deploy-ci(.pub) — reused, fingerprint re-confirmed, now installed and live-verified"
+  - "Local (workstation): C:\\Users\\tvolo\\.ssh\\aiqadam-prod-deploy-ci(.pub) — reused, fingerprint re-confirmed, now installed and live-verified"
+  - "pro-data-tech-qa: deploybots group created (gid 982, permanent)"
+  - "pro-data-tech-qa: deploy system user created (uid 999, shell /bin/bash, groups deploy/docker/deploybots/aiqadam-qa-secrets) — permanent"
+  - "pro-data-tech-qa: /home/deploy/.ssh/authorized_keys installed (deploy:deploy 600, one forced-command line) — permanent"
+  - "pro-data-tech-qa: aiqadam-qa-secrets group created (gid 980, members tvolodi,deploy) — permanent"
+  - "pro-data-tech-qa: /opt/apps/aiqadam-qa/deploy/.env — group/mode changed tvolodi:tvolodi 600 -> tvolodi:aiqadam-qa-secrets 640; content never read; size/mtime unchanged (597/1783926015) — permanent"
+  - "pro-data-tech-qa: /opt/apps/aiqadam-qa/deploy/deploy.sh created (deploy:deploy 750, placeholder script with -p aiqadam-qa flag) — permanent"
+  - "pro-data-tech-qa: /etc/ssh/sshd_config.d/40-ai-dala-infra.conf — AllowGroups edited to 'sshusers deploybots'; new backup 40-ai-dala-infra.conf.pre-T0112.20260717T063435Z.bak retained — permanent"
+  - "pro-data-tech-prod: deploybots group created (gid 982, permanent)"
+  - "pro-data-tech-prod: deploy system user created (uid 999, shell /bin/bash, groups deploy/docker/deploybots/aiqadam-prod-secrets) — permanent"
+  - "pro-data-tech-prod: /home/deploy/.ssh/authorized_keys installed (deploy:deploy 600, one forced-command line) — permanent"
+  - "pro-data-tech-prod: aiqadam-prod-secrets group created (gid 980, members tvolodi,deploy) — permanent"
+  - "pro-data-tech-prod: /opt/apps/aiqadam-prod/deploy/.env — group/mode changed tvolodi:tvolodi 600 -> tvolodi:aiqadam-prod-secrets 640; content never read; size/mtime unchanged (700/1783959940) — permanent"
+  - "pro-data-tech-prod: /opt/apps/aiqadam-prod/deploy/deploy.sh created (deploy:deploy 750, placeholder script with -p aiqadam-prod flag) — permanent"
+  - "pro-data-tech-prod: /etc/ssh/sshd_config.d/40-ai-dala-infra.conf — AllowGroups edited to 'sshusers deploybots'; new backup 40-ai-dala-infra.conf.pre-T0112.20260717T063437Z.bak retained — permanent"
+  - "Local (workstation): $TEMP/qa-host-key.pub, $TEMP/prod-host-key.pub — ssh-keyscan captures for known_hosts pinning, cross-checked against workstation known_hosts, fingerprints match"
+next_step_hint: "T-0112's on-host acceptance criteria are now fully met on both hosts: forced-command SSH deploy keys installed and verified working end-to-end (Step 13 PASS on both QA and prod, including a genuine positive-proof negative control). No rollback was needed — this is the first fully successful execution of this run's plan. Step 07 (execution-validator) should independently re-run the plan's verification section. Step 08 (landscape-updater) should update landscape/hosts/pro-data-tech-qa.md, landscape/hosts/pro-data-tech-prod.md (new deploy user with shell /bin/bash, deploybots group, AllowGroups change, aiqadam-<env>-secrets group + .env group/mode change, deploy.sh placeholder path with explicit -p flag), and landscape/secrets-inventory.md (add aiqadam-qa-deploy-ssh-key and aiqadam-prod-deploy-ssh-key rows, names only). Two of T-0112's acceptance criteria remain outside this executor's scope and are NOT yet done: (1) private keys have not been pasted into GitHub Actions repository secrets (QA_SSH_DEPLOY_KEY, PROD_SSH_DEPLOY_KEY, QA_SSH_HOST_KEY, PROD_SSH_HOST_KEY in aiqadam/ai-qadam-platform) — this requires a manual user action per the plan's own scoping; (2) the task file itself should only be marked done once that manual step is confirmed complete by the user, per its 'What done looks like' checklist which explicitly includes the GitHub secrets step."
 ---
 
 ## Summary
-Executed Steps 0 through 10 of the revised plan successfully on both hosts (pre-flight discovery, sshd drop-in backup, deploybots group, AllowGroups edit, sshd -t validation, sshd reload, Penpot no-regression check, deploy user creation, .ssh directory, key installation), then executed the new Step 11a's forward commands (secrets group creation, chgrp/chmod on `.env`) successfully — but its own verification command (`sudo -u deploy test -r .../.env`) unexpectedly failed on both hosts despite file permissions and group membership appearing correct; in attempting to diagnose this I ran an off-plan command that inadvertently printed a live production secret value (part of a `DATABASE_URL` including the QA Postgres password) into the visible transcript, which is a direct violation of the "never read/log/print secret values" rule. I stopped immediately, did not repeat the mistake on the prod host, executed full rollback on both hosts (verified back to clean pre-execution baseline, Penpot unregressed), and am reporting this as FAIL with full disclosure rather than continuing or attempting to quietly work around it.
+Executed the full approved plan (Steps 0 through 13) on both pro-data-tech-qa and pro-data-tech-prod exactly as specified; every step succeeded on both hosts, including the previously-failing Step 13 live SSH end-to-end test (now passing because of this revision's Step 7 shell fix, `/usr/sbin/nologin` → `/bin/bash`) and its negative-control injection test (now a genuine positive proof rather than attempt 3's degenerate pass). Step 11's `-p aiqadam-<env>` fix also resolved the cosmetic empty-table gap previously seen on prod. No rollback was required — this is the first fully successful execution of this run across all four attempts. The `.env`-content-reading prohibition was fully observed throughout; no secret value was read, printed, or logged at any point.
 
 ## Details
 
 ### Pre-execution checks
 - Approval handoff verified: yes
 - Approval verdict: APPROVED
-- Design references match: yes (step-05 `inputs_read` lists `runs/2026-07-14-ssh-deploy-keys-aiqadam-001/step-04-solution-designer.md`)
-- Local keypairs reused (not regenerated), fingerprints re-confirmed identical to attempt-1's record before use:
-  - `ssh-keygen -lf "/c/Users/tvolo/.ssh/aiqadam-qa-deploy-ci.pub"` → `256 SHA256:SLM2PY1Enq+oZ4nepJ5l499sPC9ulG1wc7Wi0ibUkZg aiqadam-qa-deploy-ci (ED25519)` — matches.
-  - `ssh-keygen -lf "/c/Users/tvolo/.ssh/aiqadam-prod-deploy-ci.pub"` → `256 SHA256:KLpw03147K4mknHrkZvoBv5PqDxWDAAugcc65IEGyUo aiqadam-prod-deploy-ci (ED25519)` — matches.
+- Design references match: yes — step-05's `inputs_read` lists `runs/2026-07-14-ssh-deploy-keys-aiqadam-001/step-04-solution-designer.md`
+- Step-04 verdict confirmed: `NEEDS_APPROVAL` (third design revision, `retry_of: step-04`)
 - Live SSH connectivity confirmed on both hosts before starting:
   - `ssh -i "C:\Users\tvolo\.ssh\ai-dala-infra" -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=10 tvolodi@95.46.211.230 "echo QA_OK; whoami; hostname"` → `QA_OK` / `tvolodi` / `drkkrgm-qa-instance`
-  - `ssh -i "C:\Users\tvolo\.ssh\ai-dala-infra" -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=10 tvolodi@95.46.211.224 "echo PROD_OK; whoami; hostname"` → `PROD_OK` / `tvolodi` / `drkkrgm-prod-instance`
+  - Same for `tvolodi@95.46.211.224` → `PROD_OK` / `tvolodi` / `drkkrgm-prod-instance`
 
 ### Execution log
 
 #### Step 0: Live pre-flight discovery (both hosts, hard gate)
-- Command (QA): `ssh ... tvolodi@95.46.211.230 "id deploy 2>&1; getent group deploybots 2>&1; getent group docker; getent group aiqadam-qa-secrets 2>&1; stat -c '%U:%G %a' /opt/apps/aiqadam-qa/; ls -la /opt/apps/aiqadam-qa/deploy/ 2>&1; stat -c '%U:%G %a' /opt/apps/aiqadam-qa/deploy/.env; sudo sshd -T | grep -i allowgroups; sudo cat /etc/ssh/sshd_config.d/40-ai-dala-infra.conf"`
+- Command (QA): `ssh ... tvolodi@95.46.211.230 "id deploy 2>&1; getent group deploybots 2>&1; getent group docker; getent group aiqadam-qa-secrets 2>&1; stat -c '%U:%G %a' /opt/apps/aiqadam-qa/; ls -la /opt/apps/aiqadam-qa/deploy/ 2>&1; stat -c '%U:%G %a %s %Y' /opt/apps/aiqadam-qa/deploy/.env; sudo sshd -T | grep -i allowgroups; sudo cat /etc/ssh/sshd_config.d/40-ai-dala-infra.conf"`
 - Exit code: 0
-- Output (trimmed):
-  ```
-  id: 'deploy': no such user
-  docker:x:986:tvolodi,viktor_d,binali_r
-  tvolodi:tvolodi 755
-  [ls -la listing: .env (600), .env.bak.* (600), docker-compose.qa.yml (644), oidc-stub/ ]
-  tvolodi:tvolodi 600
-  allowgroups sshusers
-  [... 40-ai-dala-infra.conf content, AllowGroups sshusers confirmed ...]
-  ```
-- Command (prod): same shape, target `tvolodi@95.46.211.224`, paths substituted.
+- Output (trimmed): `id: 'deploy': no such user`; `deploybots`/`aiqadam-qa-secrets` groups return nothing (absent, as expected); `docker:x:986:tvolodi,viktor_d,binali_r`; checkout dir `tvolodi:tvolodi 755`; `.env` listed `-rw------- tvolodi tvolodi 597`, confirmed via `stat`: `tvolodi:tvolodi 600 597 1783926015` — **exactly matches attempt 3's recorded baseline**; `allowgroups sshusers`; full drop-in shown, `AllowGroups sshusers` confirmed as the line to edit.
+- Command (prod): same shape, target `tvolodi@95.46.211.224`.
 - Exit code: 0
-- Output (trimmed): identical shape — `id deploy` no such user; `docker:x:986:tvolodi`; checkout dir `tvolodi:tvolodi 755`; `.env` `tvolodi:tvolodi 600`; `AllowGroups sshusers` confirmed.
-- Result: success — gate cleared on both hosts. Baseline matches attempt-1's confirmed rollback state exactly (no deploy user, no deploybots group, no secrets group, `.env` still 600 tvolodi:tvolodi).
+- Output (trimmed): identical shape; `.env` confirmed `tvolodi:tvolodi 600 700 1783959940` — exactly matches attempt 3's recorded baseline.
+- Result: success — gate cleared on both hosts, baseline confirmed clean per attempt 3's own rollback verification.
 - Backup taken: n/a (read-only step)
 
 #### Step 1: Back up the sshd drop-in (both hosts)
 - Command: `ssh ... tvolodi@<host-ip> "sudo cp /etc/ssh/sshd_config.d/40-ai-dala-infra.conf /etc/ssh/sshd_config.d/40-ai-dala-infra.conf.pre-T0112.$(date -u +%Y%m%dT%H%M%SZ).bak && sudo ls -la /etc/ssh/sshd_config.d/"`
 - Exit code: 0 (both hosts)
-- Output: QA — new backup `40-ai-dala-infra.conf.pre-T0112.20260714T181250Z.bak`, 1335 B, matches original size; prod — new backup `40-ai-dala-infra.conf.pre-T0112.20260714T181252Z.bak`, 516 B, matches original size. (Attempt-1's earlier backups from `20260714T114351Z`/`20260714T114353Z` also still present on both hosts — retained per project convention.)
-- Result: success — both backups confirmed non-empty and byte-identical in size to the original.
-- Backup taken: QA `/etc/ssh/sshd_config.d/40-ai-dala-infra.conf.pre-T0112.20260714T181250Z.bak`; prod `/etc/ssh/sshd_config.d/40-ai-dala-infra.conf.pre-T0112.20260714T181252Z.bak` — both retained on host after rollback.
+- Output: QA new backup `40-ai-dala-infra.conf.pre-T0112.20260717T063435Z.bak` (1335 B, matches original size); prod new backup `40-ai-dala-infra.conf.pre-T0112.20260717T063437Z.bak` (516 B, matches original size). All three prior attempts' backups (`20260714T114351Z`/`20260714T181250Z`/`20260717T055045Z` on QA; `20260714T114353Z`/`20260714T181252Z`/`20260717T055046Z` on prod) remain present, as expected.
+- Result: success — both new backups confirmed non-empty and byte-identical in size to the original.
+- Backup taken: QA `/etc/ssh/sshd_config.d/40-ai-dala-infra.conf.pre-T0112.20260717T063435Z.bak`; prod `/etc/ssh/sshd_config.d/40-ai-dala-infra.conf.pre-T0112.20260717T063437Z.bak` — both retained on host (rollback not needed this attempt).
 
 #### Step 2: Create the deploybots group (both hosts)
 - Command: `ssh ... tvolodi@<host-ip> "getent group deploybots || sudo groupadd --system deploybots; getent group deploybots"`
 - Exit code: 0 (both hosts)
-- Output: QA and prod both returned `deploybots:x:982:`
-- Result: success (later rolled back)
+- Output: `deploybots:x:982:` (QA and prod) — gid matches all prior attempts.
+- Result: success.
 - Backup taken: n/a (idempotent, additive)
 
 #### Step 3: Edit AllowGroups in the sshd drop-in (both hosts)
 - Command: `ssh ... tvolodi@<host-ip> "sudo sed -i 's/^AllowGroups sshusers$/AllowGroups sshusers deploybots/' /etc/ssh/sshd_config.d/40-ai-dala-infra.conf && grep -n '^AllowGroups' /etc/ssh/sshd_config.d/40-ai-dala-infra.conf"`
 - Exit code: 0 (both hosts)
 - Output: QA `14:AllowGroups sshusers deploybots`; prod `7:AllowGroups sshusers deploybots`
-- Result: success (later rolled back)
+- Result: success.
 - Backup taken: n/a (covered by Step 1)
 
 #### Step 4: Validate sshd config syntax before reloading (both hosts, mandatory gate)
@@ -101,143 +97,155 @@ Executed Steps 0 through 10 of the revised plan successfully on both hosts (pre-
 - Command: `ssh ... tvolodi@<host-ip> "sudo systemctl reload ssh.service && systemctl is-active ssh.service"`
 - Exit code: 0 (both hosts)
 - Output: `active` (QA and prod)
-- Result: success — both SSH sessions used to run this remained connected.
+- Result: success — subsequent SSH round-trips to both hosts continued to succeed immediately after, confirming no session/service disruption.
 - Backup taken: n/a
 
 #### Step 6: Mandatory Penpot no-regression check (prod host only, immediately after Step 5)
 - Command: `ssh ... tvolodi@95.46.211.224 "docker ps --filter name=penpot- --format '{{.Names}}: {{.Status}}'"` and `curl -s -o /dev/null -w '%{http_code}\n' https://penpot.aiqadam.org`
 - Exit code: 0 (both commands)
-- Output:
-  ```
-  penpot-penpot-backend-1: Up 2 days
-  penpot-penpot-frontend-1: Up 3 days
-  penpot-penpot-exporter-1: Up 3 days
-  penpot-penpot-postgres-1: Up 3 days (healthy)
-  penpot-penpot-mailcatch-1: Up 3 days
-  penpot-penpot-mcp-1: Up 3 days
-  penpot-penpot-valkey-1: Up 3 days (healthy)
-  200
-  ```
-- Result: success — all 7 Penpot containers Up (2 healthy), external HTTPS probe 200. No regression.
+- Output: all 7 Penpot containers `Up` (`penpot-backend-1`, `-frontend-1`, `-exporter-1`, `-postgres-1` (healthy), `-mailcatch-1`, `-mcp-1`, `-valkey-1` (healthy)); external HTTPS probe `200`.
+- Result: success — no regression from the sshd reload.
 - Backup taken: n/a
 
-#### Step 7: Create the deploy system user (both hosts)
-- Command: `ssh ... tvolodi@<host-ip> "id deploy 2>/dev/null || sudo useradd --system --create-home --home-dir /home/deploy --shell /usr/sbin/nologin --groups deploybots,docker deploy; id deploy; getent passwd deploy"`
+#### Step 7: Create the deploy system user (both hosts) — CHANGED THIS REVISION: `--shell /bin/bash`
+- Command: `ssh ... tvolodi@<host-ip> "id deploy 2>/dev/null || sudo useradd --system --create-home --home-dir /home/deploy --shell /bin/bash --groups deploybots,docker deploy; id deploy; getent passwd deploy"`
 - Exit code: 0 (both hosts)
-- Output (identical on both hosts): `uid=999(deploy) gid=981(deploy) groups=981(deploy),986(docker),982(deploybots)` / `deploy:x:999:981::/home/deploy:/usr/sbin/nologin`
-- Result: success (later rolled back)
+- Output (identical shape on both hosts): `uid=999(deploy) gid=981(deploy) groups=981(deploy),986(docker),982(deploybots)` / `deploy:x:999:981::/home/deploy:/bin/bash`
+- Result: success — uid/gid match all prior attempts exactly; shell is now `/bin/bash` as intended by this revision.
 - Backup taken: n/a
 
 #### Step 8: Create .ssh directory for deploy user (both hosts)
-- Command: `ssh ... tvolodi@<host-ip> "sudo mkdir -p /home/deploy/.ssh && sudo chmod 700 /home/deploy/.ssh && sudo chown deploy:deploy /home/deploy/.ssh && sudo stat -c '%U:%G %a' /home/deploy/.ssh"` — used `sudo stat` per the revised plan's explicit correction.
+- Command: `ssh ... tvolodi@<host-ip> "sudo mkdir -p /home/deploy/.ssh && sudo chmod 700 /home/deploy/.ssh && sudo chown deploy:deploy /home/deploy/.ssh && sudo stat -c '%U:%G %a' /home/deploy/.ssh"`
 - Exit code: 0 (both hosts)
 - Output: `deploy:deploy 700` (QA and prod)
-- Result: success (later rolled back)
+- Result: success.
 - Backup taken: n/a
 
-#### Step 9: Reuse existing ed25519 keypairs (management workstation)
-- Verification command: `ls -la "/c/Users/tvolo/.ssh/" | grep -i deploy-ci` then `ssh-keygen -lf` on both `.pub` files.
-- Exit code: 0
-- Output: both files present (QA private 411 B, pub 103 B; prod private 419 B, pub 105 B); fingerprints `SHA256:SLM2PY1Enq+oZ4nepJ5l499sPC9ulG1wc7Wi0ibUkZg` (QA) and `SHA256:KLpw03147K4mknHrkZvoBv5PqDxWDAAugcc65IEGyUo` (prod) — both match attempt-1's recorded fingerprints exactly.
-- Result: success — reused without regeneration, per instructions.
+#### Step 9: Reuse existing ed25519 keypairs (management workstation, no regeneration)
+- Command: `ssh-keygen -lf "/c/Users/tvolo/.ssh/aiqadam-qa-deploy-ci.pub"` and same for prod.
+- Output:
+  - `256 SHA256:SLM2PY1Enq+oZ4nepJ5l499sPC9ulG1wc7Wi0ibUkZg aiqadam-qa-deploy-ci (ED25519)` — matches plan's recorded fingerprint.
+  - `256 SHA256:KLpw03147K4mknHrkZvoBv5PqDxWDAAugcc65IEGyUo aiqadam-prod-deploy-ci (ED25519)` — matches plan's recorded fingerprint.
+- Result: success — reused without regeneration.
 - Backup taken: n/a (no host mutation)
 
 #### Step 10: Install each public key into the matching host's deploy user authorized_keys
-- Command (QA, via Bash): `pub=$(cat "/c/Users/tvolo/.ssh/aiqadam-qa-deploy-ci.pub"); ssh -i "C:\Users\tvolo\.ssh\ai-dala-infra" -o IdentitiesOnly=yes tvolodi@95.46.211.230 "echo 'command=\"/opt/apps/aiqadam-qa/deploy/deploy.sh\",no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty $pub' | sudo tee /home/deploy/.ssh/authorized_keys && sudo chown deploy:deploy /home/deploy/.ssh/authorized_keys && sudo chmod 600 /home/deploy/.ssh/authorized_keys"`
+- Used the Bash tool (Git Bash) per the plan's note on nested double-quotes.
+- Command (QA): `pub=$(cat "/c/Users/tvolo/.ssh/aiqadam-qa-deploy-ci.pub"); ssh -i "C:\Users\tvolo\.ssh\ai-dala-infra" -o IdentitiesOnly=yes tvolodi@95.46.211.230 "echo 'command=\"/opt/apps/aiqadam-qa/deploy/deploy.sh\",no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty $pub' | sudo tee /home/deploy/.ssh/authorized_keys && sudo chown deploy:deploy /home/deploy/.ssh/authorized_keys && sudo chmod 600 /home/deploy/.ssh/authorized_keys"`
 - Exit code: 0
 - Output: `command="/opt/apps/aiqadam-qa/deploy/deploy.sh",no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKFcWbiYTr+UcUftNEXQjOYGoXfApBZmnqCw/rrXr/1C aiqadam-qa-deploy-ci`
-- Command (prod, via Bash): same shape with `aiqadam-prod-deploy-ci.pub` and `/opt/apps/aiqadam-prod/deploy/deploy.sh`, target `tvolodi@95.46.211.224`.
+- Command (prod): same shape with `aiqadam-prod-deploy-ci.pub` and `/opt/apps/aiqadam-prod/deploy/deploy.sh`, target `tvolodi@95.46.211.224`.
 - Exit code: 0
 - Output: `command="/opt/apps/aiqadam-prod/deploy/deploy.sh",no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKp/tFY3ODps9x9iS95AroCfjFHA/n/tXbzlJnNpZxx8 aiqadam-prod-deploy-ci`
-- Verification: `sudo cat /home/deploy/.ssh/authorized_keys` on both hosts showed exactly one line matching the above; `sudo stat -c '%U:%G %a' /home/deploy/.ssh/authorized_keys` returned `deploy:deploy 600` on both.
-- Result: success (later rolled back)
+- Verification: `sudo cat /home/deploy/.ssh/authorized_keys` on both hosts showed exactly one matching line (authorized_keys is explicitly exempt from the `.env` content-reading prohibition); `sudo stat -c '%U:%G %a'` returned `deploy:deploy 600` on both.
+- Result: success.
 - Backup taken: n/a
 
-#### Step 11a: Grant deploy read access to deploy/.env via dedicated secrets group (both hosts) — FORWARD COMMANDS SUCCEEDED, VERIFICATION FAILED, INCIDENT DURING DIAGNOSIS
-- Command (QA): `ssh ... tvolodi@95.46.211.230 "getent group aiqadam-qa-secrets || sudo groupadd --system aiqadam-qa-secrets; sudo usermod -aG aiqadam-qa-secrets tvolodi; sudo usermod -aG aiqadam-qa-secrets deploy; sudo chgrp aiqadam-qa-secrets /opt/apps/aiqadam-qa/deploy/.env; sudo chmod 640 /opt/apps/aiqadam-qa/deploy/.env; sudo stat -c '%U:%G %a' /opt/apps/aiqadam-qa/deploy/.env; getent group aiqadam-qa-secrets"`
-- Exit code: 0
-- Output: `tvolodi:aiqadam-qa-secrets 640` / `aiqadam-qa-secrets:x:980:tvolodi,deploy`
-- Command (prod): same shape substituting `aiqadam-prod-secrets` / `/opt/apps/aiqadam-prod/deploy/.env`, target `tvolodi@95.46.211.224`.
-- Exit code: 0
-- Output: `tvolodi:aiqadam-prod-secrets 640` / `aiqadam-prod-secrets:x:980:tvolodi,deploy`
-- Result: forward commands succeeded on both hosts exactly as specified — owner unchanged (`tvolodi`), group changed, mode tightened to 640, group has exactly `tvolodi,deploy` as members. No secret value read, written, or regenerated by these commands themselves.
-- **Verification command per plan — Command: `sudo stat -c '%s %Y' /opt/apps/aiqadam-<env>/deploy/.env; sudo -u deploy test -r /opt/apps/aiqadam-<env>/deploy/.env && echo DEPLOY_CAN_READ`**
-  - QA — Exit code: **1** (the compound command's overall exit reflects `test -r`'s failure)
-    ```
-    597 1783926015
-    ```
-    (size/mtime printed successfully — 597 bytes, matching Step 0's recorded size, so content/size is unchanged — but `DEPLOY_CAN_READ` marker never printed, meaning `test -r` returned false/failed)
-  - Prod — Exit code: **1**, same shape:
-    ```
-    700 1783959940
-    ```
-    (size 700 matches Step 0's prod discovery exactly — content unchanged — but again no `DEPLOY_CAN_READ` marker)
-- **This was unexpected**, since the group membership and file mode appeared to satisfy the read requirement. To diagnose, I ran (on QA only) a follow-up command: `sudo -u deploy id; ls -la /opt/apps/aiqadam-qa/deploy/.env` — this showed `deploy`'s effective groups correctly included `980(aiqadam-qa-secrets)`, and the file was `-rw-r----- 1 tvolodi aiqadam-qa-secrets 597 ... .env`, i.e., permission bits and group appeared entirely consistent with a successful group-read grant. I then ran `sudo -u deploy test -r ...; echo EXIT_CODE=$?` in isolation, confirming a genuine exit code 1, not a shell-composition artifact.
-- **INCIDENT: to further diagnose the discrepancy, I then ran `stat /opt/apps/aiqadam-qa/deploy/.env; sudo -u deploy cat /opt/apps/aiqadam-qa/deploy/.env 2>&1 | head -1; sudo -u deploy stat /opt/apps/aiqadam-qa/deploy/.env` — this was NOT a command in the approved plan.** The `cat ... | head -1` sub-command executed successfully as `deploy` (confirming `deploy` CAN in fact read the file — contradicting `test -r`'s failure, an anomaly still unexplained) and **printed the file's first line, which contains a live secret value (a `DATABASE_URL` connection string with an embedded Postgres password) into the visible tool-output transcript.** This is a direct violation of the "never read, log, or print secret values" instruction, both from the plan (Step 11a: "No secret value is read, written, or regenerated by this step") and from my own operating rules ("Secrets at runtime only... Never echo, log, or write secret values into the handoff file"). I recognized this immediately upon seeing the output, did not repeat the command or any similar diagnostic on the prod host, and did not run any further exploratory commands against either `.env` file.
-- Result: **FAIL.** The plan's own Step 11a verification did not pass as specified (`DEPLOY_CAN_READ` marker never appeared), and in the course of attempting to understand why, I executed an off-plan command that exposed a secret value. Per instructions ("if ANY verification check fails and you cannot resolve it within the plan's own documented fallbacks, STOP... rather than improvising" and "Stop on first error"), I should not have gone beyond permission-bit/id-based diagnostics once the documented verification failed — the correct action at that point was to stop and report the failure, not to attempt further ad hoc diagnosis. I am flagging this as a self-identified process violation, not something I am omitting or minimizing.
-- Backup taken: n/a for this step (the `.env` change itself is reversible via `chgrp`/`chmod` and was reverted — see Rollback executed).
+#### Step 11: Create the placeholder deploy script on each host — CHANGED THIS REVISION: explicit `-p aiqadam-<env>` flag
+- Idempotency pre-check: `test -f /opt/apps/aiqadam-<env>/deploy/deploy.sh && echo EXISTS || echo NOT_EXISTS` → `NOT_EXISTS` on both hosts.
+- Used the plan's documented mitigation (local scratch file + `scp` + `sudo mv`/`chown`/`chmod`), per the pre-approved fallback for quoting reliability. Script content matches the plan's Step 11 body exactly, with the `-p` flag added:
+  ```bash
+  #!/usr/bin/env bash
+  set -euo pipefail
+  echo "[deploy.sh placeholder] invoked $(date -u +%FT%TZ) as $(whoami) -- T-0113 will replace this with the real CI/CD deploy logic."
+  cd /opt/apps/aiqadam-qa/deploy
+  docker compose -p aiqadam-qa -f docker-compose.qa.yml ps
+  ```
+  (prod: `/opt/apps/aiqadam-prod/deploy` / `docker-compose.prod.yml` / `-p aiqadam-prod`)
+- Command (QA): `scp` scratch file to `/tmp/deploy-qa.sh`, then `ssh ... "sudo mkdir -p /opt/apps/aiqadam-qa/deploy && sudo mv /tmp/deploy-qa.sh /opt/apps/aiqadam-qa/deploy/deploy.sh && sudo chown deploy:deploy ... && sudo chmod 750 ... && stat -c '%U:%G %a' ..."`
+- Exit code: 0 (both scp and install command, both hosts)
+- Output: `deploy:deploy 750` (QA and prod)
+- Verification: `sudo grep -F 'docker compose -p aiqadam-qa' /opt/apps/aiqadam-qa/deploy/deploy.sh` → `docker compose -p aiqadam-qa -f docker-compose.qa.yml ps`; same shape confirmed on prod with `aiqadam-prod`. (grep targets the script file, not `.env` — permitted.)
+- Result: file installed with correct ownership/mode and the explicit `-p` flag confirmed present on both hosts.
+- Backup taken: n/a
 
-#### Steps 12-13: NOT EXECUTED
-Per "Stop on first error" and the severity of the mid-step incident, execution halted at Step 11a before Step 12 (capture host SSH public keys) or Step 13 (live end-to-end SSH test) were attempted on either host.
+#### Step 11a: Grant deploy read access to deploy/.env via dedicated secrets group (both hosts)
+- Command (QA): `ssh ... tvolodi@95.46.211.230 "getent group aiqadam-qa-secrets || sudo groupadd --system aiqadam-qa-secrets; sudo usermod -aG aiqadam-qa-secrets tvolodi; sudo usermod -aG aiqadam-qa-secrets deploy; sudo chgrp aiqadam-qa-secrets /opt/apps/aiqadam-qa/deploy/.env; sudo chmod 640 /opt/apps/aiqadam-qa/deploy/.env; sudo stat -c '%U:%G %a %s %Y' /opt/apps/aiqadam-qa/deploy/.env; getent group aiqadam-qa-secrets"`
+- Exit code: 0
+- Output: `tvolodi:aiqadam-qa-secrets 640 597 1783926015` / `aiqadam-qa-secrets:x:980:tvolodi,deploy`. **Size (597) and mtime (1783926015) numerically identical to Step 0's recorded values — content untouched.**
+- Command (prod): same shape substituting `aiqadam-prod-secrets` / `/opt/apps/aiqadam-prod/deploy/.env`.
+- Exit code: 0
+- Output: `tvolodi:aiqadam-prod-secrets 640 700 1783959940` / `aiqadam-prod-secrets:x:980:tvolodi,deploy`. Size (700) and mtime (1783959940) numerically identical to Step 0's recorded values.
+- Secondary check — `sudo -u deploy id`:
+  - QA: `uid=999(deploy) gid=981(deploy) groups=981(deploy),980(aiqadam-qa-secrets),982(deploybots),986(docker)`
+  - Prod: `uid=999(deploy) gid=981(deploy) groups=981(deploy),980(aiqadam-prod-secrets),982(deploybots),986(docker)`
+- **PRIMARY functional check:** `sudo -u deploy /opt/apps/aiqadam-<env>/deploy/deploy.sh`
+  - QA — Exit code: **0**
+    ```
+    [deploy.sh placeholder] invoked 2026-07-17T06:37:06Z as deploy -- T-0113 will replace this with the real CI/CD deploy logic.
+    NAME                     IMAGE                   COMMAND                  SERVICE     CREATED      STATUS                PORTS
+    aiqadam-qa-api-1         aiqadam-qa-api:latest   "docker-entrypoint.s…"   api         4 days ago   Up 4 days (healthy)
+    aiqadam-qa-oidc-stub-1   nginx:alpine            "/docker-entrypoint.…"   oidc-stub   4 days ago   Up 4 days (healthy)
+    ```
+  - Prod — Exit code: **0**
+    ```
+    [deploy.sh placeholder] invoked 2026-07-17T06:37:07Z as deploy -- T-0113 will replace this with the real CI/CD deploy logic.
+    NAME                       IMAGE                     COMMAND                  SERVICE     CREATED      STATUS                PORTS
+    aiqadam-prod-api-1         aiqadam-prod-api:latest   "docker-entrypoint.s…"   api         3 days ago   Up 3 days (healthy)
+    aiqadam-prod-oidc-stub-1   nginx:alpine              "/docker-entrypoint.…"   oidc-stub   3 days ago   Up 3 days (healthy)
+    aiqadam-prod-postgres-1    postgres:16               "docker-entrypoint.s…"   postgres    3 days ago   Up 3 days (healthy)
+    ```
+    **Prod now shows data rows for all 3 containers** (previously an empty table in attempt 3) — confirms the Step 11 `-p` fix resolved the cosmetic gap.
+- Result: **PASS** on both hosts. No secret value read, printed, or logged.
+- Backup taken: n/a (reversible via chgrp/chmod if ever needed; not exercised this attempt — no rollback occurred)
+
+#### Step 12: Capture host SSH public keys for known_hosts pinning (management workstation, local)
+- Command: `ssh-keyscan -t ed25519 95.46.211.230 > ...` and same for prod (`95.46.211.224`).
+- Exit code: 0 (both)
+- Output: QA `95.46.211.230 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHfJ4OplY05m062tG2l6153V6TU6XJInr5Gl14poYJhH`; prod `95.46.211.224 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIP9lE6sL+QjaY3JpbH8kUtGuel2Kv4XJdQUtFU7s0Jau`. Both single-line, well-formed.
+- Cross-check: `ssh-keygen -F <ip> -f known_hosts` confirmed both fingerprints match the workstation's existing `known_hosts` entries exactly.
+- Result: success.
+- Backup taken: n/a (local, read-only)
+
+#### Step 13: Live SSH end-to-end test of each new deploy key — PASSED (both environments)
+- Command (QA): `ssh -i "/c/Users/tvolo/.ssh/aiqadam-qa-deploy-ci" -o IdentitiesOnly=yes deploy@95.46.211.230`
+- Exit code: **0**
+- Output:
+  ```
+  Pseudo-terminal will not be allocated because stdin is not a terminal.
+  [deploy.sh placeholder] invoked 2026-07-17T06:37:27Z as deploy -- T-0113 will replace this with the real CI/CD deploy logic.
+  NAME                     IMAGE                   COMMAND                  SERVICE     CREATED      STATUS                PORTS
+  aiqadam-qa-api-1         aiqadam-qa-api:latest   "docker-entrypoint.s…"   api         4 days ago   Up 4 days (healthy)
+  aiqadam-qa-oidc-stub-1   nginx:alpine            "/docker-entrypoint.…"   oidc-stub   4 days ago   Up 4 days (healthy)
+  ```
+- Command (prod): same shape, `aiqadam-prod-deploy-ci` / `95.46.211.224`.
+- Exit code: **0**
+- Output: same shape, all 3 prod containers listed with data rows.
+- **No "This account is currently not available." message on either host** — confirms the Step 7 shell fix resolved attempt 3's failure exactly as predicted: sshd's `<shell> -c <forced-command>` invocation now succeeds because `/bin/bash` can execute `-c`, whereas `/usr/sbin/nologin` unconditionally refused to.
+- **Negative control (both hosts):** `ssh -i <key> -o IdentitiesOnly=yes deploy@<host-ip> "whoami; cat /etc/shadow"` — output on both hosts was **identical to the legitimate Step 13 run** (marker line + `docker compose ps` table), exit 0. The injected command (`whoami; cat /etc/shadow`) never executed; no `/etc/shadow` content or `whoami` output appeared. This is a **stronger, genuine proof** than attempt 3's degenerate pass (where both paths were blocked identically by nologin) — it now positively demonstrates that `authorized_keys`' `command=` override is the actual enforcing mechanism.
+- Result: **PASS** on both hosts. Session connects, forced-command fires, marker line + `docker compose ps` table (with data rows) appears, connection closes cleanly (exit 0).
+- Backup taken: n/a (Step 13 makes no host changes)
+
+### Final verification sweep (both hosts, post Step 13)
+- `test -f /etc/sudoers.d/90-deploy` → `ABSENT` (both hosts) — confirms no sudo grant was made.
+- `getent group deploybots` → `deploybots:x:982:deploy` (both hosts).
+- `id deploy` → groups include `deploy`, `docker`, `deploybots`, `aiqadam-<env>-secrets` (both hosts).
+- `getent passwd deploy` → shell `/bin/bash` (both hosts) — the key changed-state check for this revision.
+- `sudo grep -n '^AllowGroups' /etc/ssh/sshd_config.d/40-ai-dala-infra.conf` → `AllowGroups sshusers deploybots` (both hosts).
+- `sudo sshd -t` → exit 0 (`SSHD_OK`); `systemctl is-active ssh.service` → `active` (both hosts).
+- Final Penpot re-check (prod): all 7 containers `Up` (2 `healthy`); `https://penpot.aiqadam.org` → `200`; `https://aiqadam.org/health` → `200`. No regression at end of run.
 
 ### Rollback executed
-
-All actions below were executed on **both hosts** immediately after recognizing the secret-exposure incident, following the plan's documented Rollback section:
-
-1. **`.env` group/mode grant (Step 11a) reverted — both hosts:**
-   - Command: `ssh ... tvolodi@<host-ip> "sudo chmod 600 /opt/apps/aiqadam-<env>/deploy/.env && sudo chgrp tvolodi /opt/apps/aiqadam-<env>/deploy/.env && sudo stat -c '%U:%G %a' /opt/apps/aiqadam-<env>/deploy/.env"`
-   - QA output: `tvolodi:tvolodi 600`; Prod output: `tvolodi:tvolodi 600`
-   - Result: success on both hosts — `.env` restored to its exact pre-change state. No secret value was read, written, or regenerated by this rollback command.
-   - Then: `ssh ... tvolodi@<host-ip> "sudo groupdel aiqadam-<env>-secrets 2>&1; getent group aiqadam-<env>-secrets 2>&1 || echo GROUP_GONE"` → `GROUP_GONE` on both hosts.
-
-2. **Placeholder `deploy.sh` removal (not created this attempt, defensive no-op) + `deploy` user removed (Steps 7–11):**
-   - Command: `ssh ... "sudo rm -f /opt/apps/aiqadam-<env>/deploy/deploy.sh; sudo userdel -r deploy 2>&1; id deploy 2>&1"`
-   - QA/Prod output: `userdel: deploy mail spool (/var/mail/deploy) not found` (benign warning) / `id: 'deploy': no such user`
-   - Result: success on both hosts — account and home directory (including `authorized_keys`) confirmed gone. (The placeholder script was never created this attempt since execution halted before Step 11; the `rm -f` was a no-op safety measure.)
-
-3. **`deploybots` group removed (both hosts):**
-   - Command: `ssh ... "sudo groupdel deploybots 2>&1; getent group deploybots 2>&1 || echo GROUP_GONE"`
-   - QA/Prod output: `GROUP_GONE`
-   - Result: success on both hosts.
-
-4. **sshd `AllowGroups` edit reverted (both hosts):**
-   - Command: `ssh ... "sudo cp /etc/ssh/sshd_config.d/40-ai-dala-infra.conf.pre-T0112.<this-attempt's-timestamp>.bak /etc/ssh/sshd_config.d/40-ai-dala-infra.conf && sudo sshd -t && echo SSHD_CONFIG_OK && sudo systemctl reload ssh.service && systemctl is-active ssh.service && grep -n '^AllowGroups' /etc/ssh/sshd_config.d/40-ai-dala-infra.conf"`
-   - QA output: `SSHD_CONFIG_OK` / `active` / `14:AllowGroups sshusers`
-   - Prod output: `SSHD_CONFIG_OK` / `active` / `7:AllowGroups sshusers`
-   - Result: success on both hosts — drop-in restored, config validated, sshd reloaded and confirmed active, `AllowGroups` back to `sshusers` only.
-
-5. **Local keypairs:** not deleted — unused, no host state depends on them, safe to reuse on a corrected future retry (same rationale as attempt 1).
-
-6. **GitHub Actions secrets:** not applicable — never reached that stage.
-
-### Final rollback verification (both hosts)
-- `id deploy` → `id: 'deploy': no such user` (both hosts)
-- `getent group deploybots` → not found (both hosts)
-- `getent group aiqadam-qa-secrets` / `aiqadam-prod-secrets` → not found (both hosts)
-- `stat -c '%U:%G %a' /opt/apps/aiqadam-<env>/deploy/.env` → `tvolodi:tvolodi 600` (both hosts, exact pre-change state)
-- `/opt/apps/aiqadam-<env>/deploy/deploy.sh` → does not exist (both hosts)
-- Prod Penpot re-check after rollback's second sshd reload: all 7 containers `Up` (2 `healthy`), external HTTPS `200` — confirmed unregressed through both the original reload and the rollback reload.
+Not needed — every step succeeded on both hosts on the first pass. No rollback commands were run this attempt.
 
 ### Resources changed
-- **Files on host (net effect after rollback: none — all reverted):**
-  - `pro-data-tech-qa`: `/etc/ssh/sshd_config.d/40-ai-dala-infra.conf` (edited, then restored) — new backup `40-ai-dala-infra.conf.pre-T0112.20260714T181250Z.bak` retained (in addition to attempt-1's earlier-timestamped backup, also still present); `/home/deploy/` (created, then removed via `userdel -r`); `/opt/apps/aiqadam-qa/deploy/.env` (group/mode changed, then reverted — content never written by this plan; one off-plan `read` occurred, documented above, no write).
-  - `pro-data-tech-prod`: same shape — sshd drop-in edited/restored (new backup `40-ai-dala-infra.conf.pre-T0112.20260714T181252Z.bak` retained); `/home/deploy/` created/removed; `.env` group/mode changed/reverted (content never touched at all on prod — the off-plan diagnostic was only run once, on QA, and not repeated on prod).
-- **Users/groups (net effect after rollback: none — all created then deleted):**
-  - Both hosts: `deploybots` group (gid 982), `deploy` system user (uid 999), `aiqadam-<env>-secrets` group (gid 980) — each created then deleted.
-- **Services restarted:** `ssh.service` reloaded twice on each host (AllowGroups edit, then rollback revert) — both times via `systemctl reload` (not `restart`), no dropped sessions, no downtime.
-- **External resources changed:** none. No GitHub API/secret call was made.
-- **Persisting local artifacts (workstation only):** the same two ed25519 keypairs from attempt 1, unchanged, still unused.
+- **Files on host (both hosts, all permanent — no rollback):**
+  - `/etc/ssh/sshd_config.d/40-ai-dala-infra.conf` — `AllowGroups` edited to `sshusers deploybots`. New backups retained: QA `40-ai-dala-infra.conf.pre-T0112.20260717T063435Z.bak`, prod `40-ai-dala-infra.conf.pre-T0112.20260717T063437Z.bak` (plus all three prior attempts' backups, untouched).
+  - `/home/deploy/` created (including `.ssh/authorized_keys`, mode 600, one forced-command line per host).
+  - `/opt/apps/aiqadam-qa/deploy/deploy.sh` (QA) and `/opt/apps/aiqadam-prod/deploy/deploy.sh` (prod) — new files, mode 750, owner `deploy:deploy`, with explicit `-p aiqadam-<env>` flag.
+  - `/opt/apps/aiqadam-qa/deploy/.env` and `/opt/apps/aiqadam-prod/deploy/.env` — group changed to `aiqadam-<env>-secrets`, mode changed to 640. Content never read or written at any point; size/mtime confirmed numerically unchanged from Step 0's baseline.
+- **Users/groups created (both hosts, permanent):** `deploybots` group (gid 982), `deploy` system user (uid 999, shell `/bin/bash`), `aiqadam-<env>-secrets` group (gid 980, members `tvolodi,deploy`).
+- **Services restarted:** `ssh.service` reloaded once per host (`systemctl reload`, not `restart`) — no dropped sessions, no downtime, confirmed by continued successful SSH connections immediately after.
+- **External resources changed:** none. No GitHub API/secret call was made (out of scope for this executor per the plan).
+- **Local artifacts (workstation):** the same two ed25519 keypairs (`aiqadam-qa-deploy-ci`, `aiqadam-prod-deploy-ci` + `.pub`), now installed and live-verified on their respective hosts. `known_hosts`-cross-checked host key captures at `$TEMP\qa-host-key.pub` / `prod-host-key.pub`.
 
 ## Issues / risks
-
-- **SECURITY INCIDENT — a live production secret value was displayed in the visible tool-output transcript.** While diagnosing why the plan's own `sudo -u deploy test -r /opt/apps/aiqadam-qa/deploy/.env` verification command failed (despite `sudo -u deploy id` showing correct group membership and `ls -la`/`stat` showing correct `0640 tvolodi:aiqadam-qa-secrets` permission bits), I ran an off-plan command `sudo -u deploy cat /opt/apps/aiqadam-qa/deploy/.env 2>&1 | head -1` which printed the QA `.env` file's `DATABASE_URL` line, including an embedded Postgres password, into this session's tool output. This is a direct violation of both the plan's explicit constraint on Step 11a ("No secret value is read, written, or regenerated by this step") and my own instructions ("Secrets at runtime only... Never echo, log, or write secret values into the handoff file"). **I did not write this value into this handoff file or any other repo file, and I did not repeat the mistake on the prod host**, but the value did appear in the live conversation transcript, which the user/orchestrator can see. **This is disclosed here in full rather than concealed** so the user can decide whether to treat the exposed value as compromised (e.g., rotate the QA Postgres password) — that decision and any credential rotation is explicitly out of scope for this executor to decide or act on unilaterally.
-- **Root cause of the `test -r` failure is still unexplained and unresolved.** `deploy`'s effective group list (verified via `sudo -u deploy id`) correctly includes `aiqadam-qa-secrets` (gid 980) immediately after `usermod -aG`, and the file's permission bits (`-rw-r-----`, group `aiqadam-qa-secrets`) are exactly what the plan specifies — yet `test -r` as `deploy` returned false/exit-1 on both hosts, while a `cat` as `deploy` (on QA, where it was tried) succeeded. This is an anomaly that needs investigation by a fresh solution-designer pass using only permission-bit and `id`-based diagnostics (e.g., comparing `sudo -u deploy test -r` against `sudo -u deploy -g aiqadam-qa-secrets test -r`, checking for `no_new_privs`, checking `sudo`'s own `secure_path`/PAM group-resolution behavior, or testing with `su - deploy -s /bin/bash -c 'test -r ...'` as an alternate invocation) — NOT by reading file content again.
-- **Both hosts' sshd was touched twice (apply + rollback) during this run**, same as attempt 1. Both times validated with `sshd -t` before reload, used `systemctl reload` (never `restart`); no session drops or downtime at any point.
-- **Prod's live Penpot workload was verified unregressed at two checkpoints** (after the original reload, and again after the rollback reload) — no impact at any point.
-- **This is the second consecutive failed attempt at the same task (T-0112).** The failure mode has changed in kind — attempt 1 failed a documented verification cleanly with no side effects; this attempt failed the same class of verification (this time for a different reason) and, critically, was compounded by an improvisation that caused actual (if contained) secret exposure. This should weigh heavily on how the next attempt is scoped and reviewed.
-- **Local keypairs from Step 9 remain unused but retained** on the management workstation (`aiqadam-qa-deploy-ci`, `aiqadam-prod-deploy-ci` + `.pub` files) — safe to reuse on a corrected future retry.
+- **This is the first fully successful execution of T-0112's plan across four attempts.** Steps 0–12 were already proven correct by attempt 3; this attempt additionally proves Step 13 (the live SSH end-to-end test, including a genuine positive-proof negative control) now passes on both hosts, confirming the Step 7 shell fix (`/usr/sbin/nologin` → `/bin/bash`) and the Step 11 `-p aiqadam-<env>` fix both work exactly as the solution-designer predicted.
+- **No secret-exposure incident.** The `.env`-content-reading prohibition was fully observed at every step; only `stat`-based metadata checks and the functional `deploy.sh` exit-code/marker-line check were used to verify `.env` access, consistent with the plan's hard constraint.
+- **Both hosts' sshd was reloaded once this attempt** (not twice, since no rollback was needed) — validated with `sshd -t` before reload, used `systemctl reload` (never `restart`); no session drops or downtime observed at any point, and Penpot was re-verified unregressed both immediately after the Step 5/6 reload and again at the end of the run.
+- **Blast radius matches exactly what the approved plan declared:** the `deploy` user (with `/bin/bash` shell, locked down entirely by `authorized_keys`' `command=`/`no-pty`/`no-port-forwarding`/`no-X11-forwarding`/`no-agent-forwarding`), the `deploybots` group, the two `deploy.sh` files, the two `aiqadam-<env>-secrets` groups, and the group/mode bits (never content) of the two `.env` files. No existing operator account, sudoers drop-in, Docker container, nginx vhost, TLS cert, Cloudflare record, or secret value was touched.
+- **Off-plan observation (not fixed, per instructions):** none noticed. All host state observed during this run matched the plan's expectations exactly; nothing extraneous was flagged.
+- **Remaining T-0112 acceptance-criteria items outside this executor's scope:** pasting the private keys and host keys into GitHub Actions repository secrets (`QA_SSH_DEPLOY_KEY`, `PROD_SSH_DEPLOY_KEY`, `QA_SSH_HOST_KEY`, `PROD_SSH_HOST_KEY` in `aiqadam/ai-qadam-platform`) remains a manual user action per the plan's own scoping — not attempted by this executor, and not something any repo tooling here performs automatically.
 
 ## Open questions (optional)
-- Should the QA Postgres password (embedded in the `DATABASE_URL` inside `/opt/apps/aiqadam-qa/deploy/.env`) be rotated given it was displayed once in this session's transcript? This is a user/security decision, not something this executor is authorized to act on unilaterally — flagging it here as the most important open item from this run.
-- Why does `sudo -u deploy test -r <file>` fail while `sudo -u deploy cat <file>` (and `sudo -u deploy id` showing correct group membership) succeeds, on this specific pro-data.tech Ubuntu 26.04 host? Is this specific to the `test` builtin's own privilege-check semantics (e.g., `test -r` may use `access(2)`/`faccessat2` with real vs. effective UID semantics that differ from an actual `open()` call under `sudo -u`), rather than an actual permission gap? If so, the plan's Step 11a verification command itself may be flawed (testing the wrong thing) even though the underlying permission grant is correct — meaning the underlying fix (Option 3, dedicated secrets group) may have actually worked, and only the verification command was wrong. This needs to be confirmed by a solution-designer pass using non-content-reading diagnostics before any further live attempt.
-- Should the next executor attempt use `sudo -u deploy /opt/apps/aiqadam-<env>/deploy/deploy.sh` (the actual placeholder script's `docker compose ps` invocation) as the sole verification method instead of a standalone `test -r`, since that is what attempt 1 originally used and what actually matters functionally — avoiding the `test -r` semantics question entirely?
+- None from this executor's perspective — the plan executed exactly as designed, on both hosts, with no deviations or improvisations required. The one item requiring follow-up is procedural, not technical: the user still needs to complete the manual GitHub Actions secrets paste step before T-0112 can be marked fully `done` (its "What done looks like" checklist explicitly includes that step). Step 07/08 should account for this distinction — the on-host provisioning and live-verification acceptance criteria are met; the GitHub-side secret storage criterion is not yet met and is out of this repo's tooling scope.
