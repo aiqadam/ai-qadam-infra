@@ -2,9 +2,9 @@
 host_id: pro-data-tech-prod
 provider: pro-data.tech
 role: penpot-prod
-last_verified: 2026-07-19
+last_verified: 2026-07-21
 status: hardened
-last_verified_note: T-0117 done 2026-07-19 via run 2026-07-19-install-mail-server-aiqadam-001 — self-hosted Stalwart mail server deployed for aiqadam.org (Compose project `stalwart-mail`, DNS cutover from the dead third-party mail.aiqadam.org host, test mailbox, nginx vhost, backup); took 9 executor attempts (full history in that run's `.attempts/`). Prior note: T-0113 (real CI/CD deploy.sh installed, syntax-checked, not yet invoked) done 2026-07-17 via run 2026-07-17-cicd-workflow-aiqadam-001 — placeholder deploy.sh replaced with real deploy logic (regex-validated git ref, rollback markers); `deploy` user granted `tvolodi` group membership for future checkout write access (preventive, no git op run as `deploy` on this host yet); Penpot confirmed unregressed; task remains in-progress (PR #15 open, not yet merged; prod's deploy.sh unexercised end-to-end until T-0115). Prior note: T-0112 (on-host provisioning complete, task remains in-progress pending GitHub Actions secrets paste) done 2026-07-17 via run 2026-07-14-ssh-deploy-keys-aiqadam-001 — dedicated `deploy` system user (uid 999, shell /bin/bash, forced-command-restricted via authorized_keys) created for CI/CD; `deploybots` group added to sshd AllowGroups; `aiqadam-prod-secrets` group grants `deploy` read access to deploy/.env. Prior note: T-0111 done 2026-07-13 — AiQadam prod app stack deployed (Compose project aiqadam-prod, 3 containers) alongside Penpot; nginx vhost + Let's Encrypt TLS live at https://aiqadam.org; Cloudflare apex A record repointed. Run 2026-07-13-setup-aiqadam-prod-infra-001, step-07 PASS.
+last_verified_note: 2026-07-21, run 2026-07-21-harden-stalwart-auto-ban-001, T-0121 done — Stalwart AllowedIp entries for 172.19.0.1 (id i9yv13qeaaqa) and 172.19.0.0/16 (id i9yv3mloabaa) created; nginx mail admin vhost restricted to loopback-only (allow 127.0.0.1; deny all; external returns 403); monitoring cron /usr/local/bin/mail-health-check.sh every 5 min; all mail ports confirmed reachable; Stalwart v0.16.13 healthy; proxyTrustedNetworks found to be PROXY protocol binary (not X-Forwarded-For) — reverted; deferred as follow-on. Prior note: 2026-07-20, manual, no run — resolved a Stalwart auto-ban incident (bridge gateway IP `172.19.0.1` permanently blocked, taking down external mail-server access; see host body and T-0121); created `postmaster@aiqadam.org` as the mailbox-request intake address per new `shared/mail-provisioning-protocol.md`. Prior note: T-0117 done 2026-07-19 via run 2026-07-19-install-mail-server-aiqadam-001 — self-hosted Stalwart mail server deployed for aiqadam.org (Compose project `stalwart-mail`, DNS cutover from the dead third-party mail.aiqadam.org host, test mailbox, nginx vhost, backup); took 9 executor attempts (full history in that run's `.attempts/`). Prior note: T-0113 (real CI/CD deploy.sh installed, syntax-checked, not yet invoked) done 2026-07-17 via run 2026-07-17-cicd-workflow-aiqadam-001 — placeholder deploy.sh replaced with real deploy logic (regex-validated git ref, rollback markers); `deploy` user granted `tvolodi` group membership for future checkout write access (preventive, no git op run as `deploy` on this host yet); Penpot confirmed unregressed; task remains in-progress (PR #15 open, not yet merged; prod's deploy.sh unexercised end-to-end until T-0115). Prior note: T-0112 (on-host provisioning complete, task remains in-progress pending GitHub Actions secrets paste) done 2026-07-17 via run 2026-07-14-ssh-deploy-keys-aiqadam-001 — dedicated `deploy` system user (uid 999, shell /bin/bash, forced-command-restricted via authorized_keys) created for CI/CD; `deploybots` group added to sshd AllowGroups; `aiqadam-prod-secrets` group grants `deploy` read access to deploy/.env. Prior note: T-0111 done 2026-07-13 — AiQadam prod app stack deployed (Compose project aiqadam-prod, 3 containers) alongside Penpot; nginx vhost + Let's Encrypt TLS live at https://aiqadam.org; Cloudflare apex A record repointed. Run 2026-07-13-setup-aiqadam-prod-infra-001, step-07 PASS.
 ssh_user: tvolodi
 ssh_port: 22
 os: ubuntu-26.04
@@ -79,7 +79,7 @@ Verified by discovery run `2026-07-11-discovery-pro-data-tech-prod-001` (probes 
 
 ## What runs here
 
-See [`../services.md`](../services.md) for the canonical per-host table. High-level: **Penpot 2.16 deployed (T-0108, 2026-07-11) — 7 Docker Compose containers running under project `penpot`; MCP enabled (`penpot-mcp` running); nginx 1.28.3 + Let's Encrypt TLS active (T-0109, 2026-07-11) — https://penpot.aiqadam.org live.** **AiQadam prod app stack deployed (T-0111, 2026-07-13) — 4 Docker Compose containers running under project `aiqadam-prod`; nginx vhost + Let's Encrypt TLS live — https://aiqadam.org live.** **Stalwart mail server deployed (T-0117, 2026-07-19) — 1 Docker Compose container running under project `stalwart-mail`; nginx vhost + Let's Encrypt TLS live for the admin UI — https://mail.aiqadam.org live; SMTP/IMAP/submission serving their own internal-ACME-managed TLS cert.** Docker CE 29.6.1 (T-0106).
+See [`../services.md`](../services.md) for the canonical per-host table. High-level: **Penpot 2.16 deployed (T-0108, 2026-07-11) — 7 Docker Compose containers running under project `penpot`; MCP enabled (`penpot-mcp` running); nginx 1.28.3 + Let's Encrypt TLS active (T-0109, 2026-07-11) — https://penpot.aiqadam.org live.** **AiQadam prod app stack deployed (T-0111, 2026-07-13) — 4 Docker Compose containers running under project `aiqadam-prod`; nginx vhost + Let's Encrypt TLS live — https://aiqadam.org live.** **Stalwart mail server deployed (T-0117, 2026-07-19) — 1 Docker Compose container running under project `stalwart-mail`; nginx vhost + Let's Encrypt TLS at https://mail.aiqadam.org (admin UI restricted to loopback — external HTTPS returns 403, operator access via SSH port-forward required, T-0121 2026-07-21); SMTP/IMAP/submission serving their own internal-ACME-managed TLS cert.** Docker CE 29.6.1 (T-0106).
 
 ## Penpot
 
@@ -155,21 +155,25 @@ The Stalwart `Domain` object for `aiqadam.org` (id `b`) is wired as follows (con
 
 ### Mailbox provisioning
 
-Mailboxes are created via `stalwart-cli create Account` (or the equivalent `apply`-with-NDJSON `upsert` mechanism). Confirmed working payload shape:
+**Process (who can request one, who creates them):** see [`shared/mail-provisioning-protocol.md`](../../shared/mail-provisioning-protocol.md) — self-service request via emailing `postmaster@aiqadam.org`, admin-created via the web panel or the mechanism below. Routine creation should use the admin panel at `https://mail.aiqadam.org/` (any admin login) — the CLI/JMAP method below is for when the panel is unavailable or for scripted/bulk work.
 
-```
-{"name":"test","domainId":"b","credentials":{"0":{"@type":"Password","secret":"<value>"}}}
+Mailboxes are created via `stalwart-cli create Account` (or the equivalent `apply`-with-NDJSON `upsert` mechanism), or directly via a raw JMAP `x:Account/set` call if the CLI itself is unreachable (e.g. during the auto-ban incident described under "Stalwart CLI gotchas" below, where a peer-container workaround was needed). Confirmed working payload shape — note the top-level `@type: "User"` is required (an easy thing to miss; omitting it fails with `"Missing or invalid '@type' property"`):
+
+```json
+{"@type":"User","name":"postmaster","domainId":"b","credentials":{"0":{"@type":"Password","secret":"<value>"}}}
 ```
 
 - **`objectList`-typed fields gotcha:** `Account.credentials` is an `objectList<x:Credential>` field and must be encoded as a JSON **map keyed by plain numeric-string indices** (`{"0": {...}}`), NOT a JSON array (`["...", ...]` → rejected: "Invalid value for object property") and NOT a map with descriptive string keys (`{"password-1": {...}}` → rejected: "Invalid key for object property"). This is related to, but distinct from, the `set<T>`-typed map-encoding quirk described below (`publishRecords`, `AcmeProvider.contact`) — `set<T>` fields accept descriptive string keys as boolean flags; `objectList<T>` fields require numeric-string positional keys.
-- One test mailbox provisioned this way: `test@aiqadam.org` (Stalwart `Account` id `e`), password from secret `stalwart-mail-test-account-password`.
+- **`x:Account` is itself a tagged-union type** (`variants: User | Group`) — the top-level object needs its own `@type` field (`"User"` for a mailbox), separate from and in addition to the `@type` inside each credential entry. Confirmed by direct schema inspection 2026-07-20; not obvious from the CLI's own error messages alone (the first failed attempt without it returned a generic `"Missing or invalid '@type' property"` with an empty `properties: [""]`, not naming which field).
+- Mailboxes provisioned so far: `test@aiqadam.org` (id `e`, secret `stalwart-mail-test-account-password`), `admin@aiqadam.org` (id `b`, domain-admin account, secret `stalwart-mail-domain-admin-password`), `postmaster@aiqadam.org` (id `f`, created 2026-07-20 as the mailbox-request intake address, secret `stalwart-mail-postmaster-password`).
 - `describe Credential` fails via the CLI (`no object or enum named Credential`) because it's an internal (`x:`-prefixed) schema type not exposed by `describe`'s top-level `objects` map — see "Stalwart CLI gotchas" below for how to discover its shape anyway.
 
 ### nginx vhost (admin UI)
 
 - **Vhost:** `/etc/nginx/sites-available/mail.aiqadam.org` (symlinked to `sites-enabled`) — HTTP→HTTPS redirect on 80; HTTPS on 443 proxying `/` → `http://127.0.0.1:8080` (Stalwart's web admin UI/JMAP), WebSocket upgrade headers, matching the existing `penpot.aiqadam.org`/`aiqadam.org` vhost pattern on this host.
 - **TLS cert reused:** the vhost reuses a Let's Encrypt cert for `mail.aiqadam.org` that was orphaned from executor attempt 1 of this run (obtained, then unused when that attempt's approach changed) — `/etc/letsencrypt/live/mail.aiqadam.org/`, ECDSA, expires 2026-10-17, auto-renewing via the same `certbot.timer` already active on this host.
-- **Access URL:** `https://mail.aiqadam.org/` — HTTP 200/302 (redirects to `/account`) confirmed from external workstation.
+- **Access restriction (T-0121, 2026-07-21):** nginx `location /` block has `allow 127.0.0.1; deny all;` as first two directives. External HTTPS now returns **HTTP 403** (confirmed from management workstation). The admin UI is accessible from the host's loopback only. Operators access the admin UI via SSH port-forward: `ssh -L 9080:127.0.0.1:8080 -i "C:\Users\tvolo\.ssh\ai-dala-infra" -o IdentitiesOnly=yes tvolodi@95.46.211.224` then browse to `http://localhost:9080/`. Pre-change backup: `/var/backups/mail.aiqadam.org.pre-T0121.20260721T150501Z.bak`.
+- **nginx headers:** `proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;` and `proxy_set_header X-Real-IP $remote_addr;` are present in the vhost (from T-0117) and ready for when Stalwart exposes header-based real-IP trust (see proxyTrustedNetworks subsection below).
 
 ### Dual TLS mechanism (important — two independent cert paths for the same hostname)
 
@@ -179,6 +183,82 @@ Mailboxes are created via `stalwart-cli create Account` (or the equivalent `appl
 2. **Stalwart's own internal ACME** (`AcmeProvider i9noabxeabab`, DNS-01 challenge via the scoped `dnsManagement: Automatic` object above) — issues and renews a separate cert used directly by Stalwart for SMTP/IMAP/submission TLS on 25/465/587/993. Confirmed live: `CN=*.aiqadam.org`, issuer Let's Encrypt (`YE2`), valid 2026-07-19 through 2026-10-17.
 
 Both certs currently cover `mail.aiqadam.org`/`*.aiqadam.org` and both auto-renew independently — there is no shared renewal hook between them.
+
+### AllowedIp configuration (T-0121, 2026-07-21)
+
+Two permanent `AllowedIp` entries were created in Stalwart's config store via JMAP `x:AllowedIp/set`, ensuring the Docker bridge addresses are never auto-banned:
+
+| JMAP ID | Address | Reason | expiresAt |
+|---|---|---|---|
+| `i9yv13qeaaqa` | `172.19.0.1` | Docker bridge gateway IP — stalwart-mail_default network — T-0121 | null (permanent) |
+| `i9yv3mloabaa` | `172.19.0.0/16` | Docker bridge subnet for stalwart-mail_default — belt-and-suspenders — T-0121 | null (permanent) |
+
+Both entries survive container restarts (stored in Stalwart's on-disk RocksDB config store). Confirmed present via `x:AllowedIp/query` + `x:AllowedIp/get` after two successive container restarts.
+
+### Monitoring (T-0121, 2026-07-21)
+
+A host-resident cron-based mail-reachability monitor is installed to catch the "container healthy but externally unreachable" failure mode that masked the 2026-07-20 incident:
+
+- **Script:** `/usr/local/bin/mail-health-check.sh` (mode `-rwxr-xr-x`, owner `root:root`, 1934 bytes)
+- **Checks:** HTTPS (`https://mail.aiqadam.org/`), SMTP port 25, submission port 587, IMAPS port 993
+- **Schedule:** `*/5 * * * * /usr/local/bin/mail-health-check.sh` in root's crontab
+- **Logging:** writes structured log entries to syslog via `logger`, also to `/var/log/mail-health-check.log`
+- **Verified:** script exits 0, log shows `[OK] all checks passed`; cron entry confirmed via `sudo crontab -l`
+
+### Stalwart JMAP emergency remediation runbook
+
+Use this when the normal `docker-proxy`-mediated path to Stalwart's admin UI (port 8080 via host loopback) is broken — e.g., due to an active ban on the bridge gateway IP, or because `proxyTrustedNetworks` was misconfigured. The peer-container path bypasses Docker's bridge proxy entirely.
+
+**Stalwart version:** v0.16.13 (confirmed 2026-07-21).
+
+**Step 1 — Get container bridge IP:**
+
+```bash
+docker inspect stalwart-mail-server-1 \
+  --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'
+# Expected: 172.19.0.2 (may change on container recreation)
+```
+
+**Step 2 — JMAP calls from a peer container on the `stalwart-mail_default` network:**
+
+```bash
+CONTAINER_IP=172.19.0.2
+# Query all BlockedIp IDs:
+docker run --rm --network stalwart-mail_default curlimages/curl:latest \
+  curl -sf -u "admin:<password>" -X POST -H "Content-Type: application/json" \
+  -d '{"using":["urn:ietf:params:jmap:core"],"methodCalls":[["x:BlockedIp/query",{},"0"]]}' \
+  http://${CONTAINER_IP}:8080/jmap
+
+# Get details for a specific BlockedIp entry (replace <id>):
+docker run --rm --network stalwart-mail_default curlimages/curl:latest \
+  curl -sf -u "admin:<password>" -X POST -H "Content-Type: application/json" \
+  -d '{"using":["urn:ietf:params:jmap:core"],"methodCalls":[["x:BlockedIp/get",{"ids":["<id>"]},"0"]]}' \
+  http://${CONTAINER_IP}:8080/jmap
+
+# Destroy a specific BlockedIp entry:
+docker run --rm --network stalwart-mail_default curlimages/curl:latest \
+  curl -sf -u "admin:<password>" -X POST -H "Content-Type: application/json" \
+  -d '{"using":["urn:ietf:params:jmap:core"],"methodCalls":[["x:BlockedIp/set",{"destroy":["<id>"]},"0"]]}' \
+  http://${CONTAINER_IP}:8080/jmap
+
+# Add an AllowedIp entry:
+docker run --rm --network stalwart-mail_default curlimages/curl:latest \
+  curl -sf -u "admin:<password>" -X POST -H "Content-Type: application/json" \
+  -d '{"using":["urn:ietf:params:jmap:core"],"methodCalls":[["x:AllowedIp/set",{"create":{"a":{"address":"<ip>","reason":"<reason>"}}},"0"]]}' \
+  http://${CONTAINER_IP}:8080/jmap
+```
+
+After deleting a ban, a `docker compose restart` is still required to clear Stalwart's in-memory copy.
+
+**Recovery from a `proxyTrustedNetworks` mistake:** start a local Python PROXY-protocol tunnel (prepends `PROXY TCP4 10.0.0.1 127.0.0.1 12345 8080\r\n` before each HTTP connection), use `stalwart-cli` against the tunnel port to set `{"proxyTrustedNetworks":{}}`, then restart the container.
+
+### proxyTrustedNetworks — PROXY protocol, not X-Forwarded-For (T-0121 finding)
+
+Stalwart v0.16.13's `SystemSettings.proxyTrustedNetworks` (type: `set<string<ipNetwork>>`) enables **HAProxy-format PROXY protocol** at the transport level — NOT header-based X-Forwarded-For trust. Setting it to include `127.0.0.1` caused Stalwart to require a binary PROXY protocol preamble from all local connections, breaking plain HTTP access to the admin UI after the next container restart. It was immediately reverted (run 2026-07-21-harden-stalwart-auto-ban-001, step 06).
+
+- **Do not enable `proxyTrustedNetworks`** unless nginx is also configured with `proxy_protocol on;` upstream (requires `ngx_http_realip_module` and listener changes — out of scope for T-0121).
+- The nginx `X-Forwarded-For` and `X-Real-IP` headers are already present (from T-0117) and will be ready when a future Stalwart version exposes header-based real-IP trust distinct from PROXY protocol.
+- Mitigation C (X-Forwarded-For trust) is deferred as a follow-on upgrade task.
 
 ### Stalwart CLI gotchas
 
@@ -192,6 +272,18 @@ Operational tribal knowledge accumulated across this run's 9 executor attempts, 
 - **`objectList`-typed fields** (e.g. `Account.credentials`) are a related-but-distinct quirk: they require **numeric-string-keyed** maps (`{"0": {...}}`), not descriptive-string keys and not arrays. See "Mailbox provisioning" above.
 - **The full raw schema** is available at `GET /api/schema` (302-redirect + gzip-encoded response body — requires `curl -L --compressed`) for anything not covered by `describe <Type>`, which only reads the schema's public `objects` map and cannot see internal (`x:`-prefixed) types like `x:Credential`/`x:PasswordCredential`.
 - **`stalwart-cli snapshot <Type>`** is the reliable way to discover an object's exact apply-plan JSON shape before constructing a real `apply`/`upsert` payload — used throughout this run to de-risk each new object type before touching production.
+- **Stalwart has a built-in auto-ban feature that can block the Docker bridge gateway IP, taking down ALL external access while `docker exec`/Docker healthchecks still report the container healthy.** Confirmed incident 2026-07-20 (see [T-0121](../../tasks/T-0121-harden-stalwart-auto-ban-against-bridge-ip.md)): scanning/probe traffic against the admin UI triggered a permanent (`expiresAt: null`) ban on `172.19.0.1` (the `stalwart-mail_default` bridge gateway) instead of the real scanner IPs — since every external connection is NAT'd through that one address, this silently blocks everyone. A container restart does NOT clear this (the ban is stored in the on-disk config store, not memory-only) — the entry must be found and deleted.
+  - **Diagnosis:** if the admin UI/SMTP/IMAPS are externally unreachable (502, empty replies, TLS handshake failures) but `docker exec ... curl http://127.0.0.1:8080/...` succeeds and `docker inspect` shows `Health: healthy`, suspect this. Confirm by testing from a disposable peer container on the same Docker network (bypasses the broken `docker-proxy` path entirely): `docker run --rm --network stalwart-mail_default curlimages/curl:latest curl http://<container-bridge-ip>:8080/healthz/live`.
+  - **Object type:** `x:BlockedIp` (internal, `x:`-prefixed — not in `stalwart-cli describe`'s default object list; found via the raw `/api/schema` dump). Query/delete via raw JMAP, run from the same peer-container path (needed because the normal host→docker-proxy→container path is itself blocked by the ban being investigated):
+    ```
+    docker run --rm --network stalwart-mail_default curlimages/curl:latest \
+      curl -u "admin:<password>" -X POST -H "Content-Type: application/json" \
+      -d '{"using":["urn:ietf:params:jmap:core"],"methodCalls":[["x:BlockedIp/query",{},"0"]]}' \
+      http://<container-bridge-ip>:8080/jmap
+    ```
+    Then `x:BlockedIp/get` with the returned `ids` to see `address`/`reason`/`createdAt`/`expiresAt` for each, and `x:BlockedIp/set` with `{"destroy":["<id>"]}` to remove only the bridge-gateway entry (leave genuine external-scanner bans in place).
+  - **After deleting the ban, a `docker compose restart` is still required** to clear an in-memory copy Stalwart holds independently of the on-disk store.
+  - Permanent mitigations applied by run `2026-07-21-harden-stalwart-auto-ban-001` ([T-0121](../../tasks/T-0121-harden-stalwart-auto-ban-against-bridge-ip.md), done 2026-07-21): (A) `AllowedIp` entries for `172.19.0.1` (id `i9yv13qeaaqa`) and `172.19.0.0/16` (id `i9yv3mloabaa`) created in Stalwart's config store; (B) nginx admin vhost restricted to loopback-only (`allow 127.0.0.1; deny all;`, external HTTPS returns 403); (C) `proxyTrustedNetworks` found to enable PROXY protocol binary (not X-Forwarded-For) — reverted, deferred as follow-on. See dedicated subsections above (AllowedIp configuration, Monitoring, Stalwart JMAP emergency remediation runbook, proxyTrustedNetworks).
 
 ## nginx
 
@@ -204,7 +296,7 @@ Operational tribal knowledge accumulated across this run's 9 executor attempts, 
 - **Vhost (Stalwart mail admin UI, T-0117, 2026-07-19):** `/etc/nginx/sites-available/mail.aiqadam.org` (symlinked to `/etc/nginx/sites-enabled/mail.aiqadam.org`) — proxies to `127.0.0.1:8080`; see [Stalwart Mail](#stalwart-mail) above for the dual-TLS-mechanism note
 - **Config (Penpot):** HTTP→HTTPS redirect on port 80; HTTPS on port 443 with `client_max_body_size 367001600`; WebSocket proxy for `/ws/notifications` and `/mcp/ws`; SSE proxy for `/mcp/stream`; general proxy for `/` → `http://localhost:9001/`
 - **Config (AiQadam prod):** HTTP→HTTPS redirect on port 80 (certbot-managed); HTTPS on port 443 proxying `/` → `http://127.0.0.1:3115/`
-- **Config (Stalwart mail admin UI):** HTTP→HTTPS redirect on port 80; HTTPS on port 443 proxying `/` → `http://127.0.0.1:8080` with WebSocket upgrade headers
+- **Config (Stalwart mail admin UI):** HTTP→HTTPS redirect on port 80; HTTPS on port 443 proxying `/` → `http://127.0.0.1:8080` with WebSocket upgrade headers; `X-Forwarded-For` and `X-Real-IP` headers present; **IP restriction (T-0121, 2026-07-21): `allow 127.0.0.1; deny all;` in `location /` — external HTTPS returns HTTP 403; operators use SSH port-forward to access the admin UI**
 - **TLS (Penpot):** Let's Encrypt via certbot 4.0.0; cert at `/etc/letsencrypt/live/penpot.aiqadam.org/` (ECDSA, expires 2026-10-09, intermediate CA `YE1`); auto-renewal via `certbot.timer` (active)
 - **TLS (AiQadam prod):** Let's Encrypt via certbot 4.0.0; cert at `/etc/letsencrypt/live/aiqadam.org/` (ECDSA, expires 2026-10-11); auto-renewal via the same `certbot.timer` (active)
 - **TLS (Stalwart mail admin UI):** Let's Encrypt via certbot 4.0.0; cert at `/etc/letsencrypt/live/mail.aiqadam.org/` (ECDSA, expires 2026-10-17) — reused from an orphaned executor-attempt-1 cert; auto-renewal via the same `certbot.timer` (active). Independent of Stalwart's own internal-ACME cert used for SMTP/IMAP/submission — see [Stalwart Mail](#stalwart-mail).
@@ -354,3 +446,5 @@ Pending work that affects this host is tracked in [`tasks/`](../../tasks/). See 
 | 2026-07-17 | `2026-07-14-ssh-deploy-keys-aiqadam-001` | T-0112 on-host provisioning done (task remains in-progress — GitHub Actions secrets paste still pending) — `deploy` system user created (uid 999, shell /bin/bash, groups deploy/docker/deploybots/aiqadam-prod-secrets), forced-command-restricted via `/home/deploy/.ssh/authorized_keys`; `deploybots` group added to sshd `AllowGroups`; `aiqadam-prod-secrets` group created, granting `deploy` read access to `/opt/apps/aiqadam-prod/deploy/.env` (group/mode changed to `tvolodi:aiqadam-prod-secrets 640`, content untouched); placeholder `deploy.sh` installed at `/opt/apps/aiqadam-prod/deploy/deploy.sh` (mode 750, owner deploy:deploy). Live SSH end-to-end test + negative control both PASS; Penpot confirmed unregressed (7/7 containers, external 200) throughout. |
 | 2026-07-17 | `2026-07-17-cicd-workflow-aiqadam-001` | T-0113 in-progress (PR #15 open, not merged) — placeholder `deploy.sh` replaced with real deploy logic reading a git ref from `SSH_ORIGINAL_COMMAND` (format `deploy:<7-40 hex sha>`), regex + `git cat-file -e` validated, rollback markers `.last-deployed-commit`/`.last-deployed-commit.previous` (written on first invocation), `git clean` never invoked; backup at `deploy.sh.pre-T0113.20260717T081828Z.bak`. Unplanned fix: `deploy` user added to `tvolodi` group (preventive, matching the QA fix) to grant future write access to the `tvolodi`-owned checkout. Syntax-checked (`bash -n` OK) but NOT invoked against the running stack — no container restarted, `.last-deployed-commit` absent by design; Penpot and the `aiqadam-prod` stack both confirmed unregressed (unchanged `Created` timestamps, external 200). |
 | 2026-07-19 | `2026-07-19-install-mail-server-aiqadam-001` | T-0117 done — Stalwart mail server deployed (Compose project `stalwart-mail` at `/opt/stalwart-mail/`, image `stalwartlabs/stalwart:v0.16`, UID 2000); `stalwart-cli` installed at `/home/tvolodi/.cargo/bin/stalwart-cli`; UFW opened 25/465/587/993; `Domain aiqadam.org` wired `dnsManagement`/`certificateManagement` both Automatic (DNS scoped to `publishRecords: {tlsa:true}`); Let's Encrypt cert (internal ACME, DNS-01) live for SMTP/IMAP/submission; nginx vhost `mail.aiqadam.org` reusing an orphaned attempt-1 certbot cert for the admin UI; test mailbox `test@aiqadam.org` created; Cloudflare `aiqadam.org` MX/A/SPF/DKIM/DMARC cut over to `95.46.211.224`, 8 stale third-party records deleted (webmail, mta-sts×2, ua-auto-config×2, caldavs/carddavs/pop3s SRV), plus 2 more (autoconfig, autodiscover CNAMEs) deleted in a follow-up attempt after validator review; local-disk backup taken. Penpot and AiQadam-prod confirmed unregressed throughout. Took 9 executor attempts (image/API/Bootstrap/restart/encoding/DNS-scoping issues along the way — see task file Result section and run `.attempts/` for full history). |
+| 2026-07-20 | (manual, no run — outside the 8-step workflow) | Stalwart auto-ban incident: the mail server's built-in scan-detection banned the Docker bridge gateway IP (`172.19.0.1`, `reason: portScanning`, permanent), blocking all external access to the admin UI/SMTP/IMAPS while `docker exec`-based healthchecks stayed green. Diagnosed via a peer-container JMAP query against `x:BlockedIp` (the normal CLI/docker-proxy path was itself blocked); the one bad entry was deleted (3 legitimate external-scanner bans left in place) and the container restarted to clear an in-memory copy. Root-cause hardening tracked in T-0121 (not yet done). Also created `postmaster@aiqadam.org` (id `f`) as the intake address for `shared/mail-provisioning-protocol.md` (new file, documents the mailbox-request process). |
+| 2026-07-21 | `2026-07-21-harden-stalwart-auto-ban-001` | T-0121 done — (A) Stalwart `AllowedIp` entries for `172.19.0.1` (id `i9yv13qeaaqa`) and `172.19.0.0/16` (id `i9yv3mloabaa`) created permanently (JMAP `x:AllowedIp/set`, `expiresAt: null`); (B) nginx `mail.aiqadam.org` vhost restricted to loopback-only (`allow 127.0.0.1; deny all;` in `location /`, external HTTPS returns 403); (C) `proxyTrustedNetworks` investigated — found to enable HAProxy PROXY protocol binary, not X-Forwarded-For header trust; reverted to `{}`; deferred as follow-on; (D) monitoring cron `/usr/local/bin/mail-health-check.sh` every 5 min installed (checks HTTPS+25/587/993, logs to syslog); Stalwart v0.16.13; container healthy; all mail ports 25/587/993 externally reachable; Penpot and AiQadam prod unregressed. |
