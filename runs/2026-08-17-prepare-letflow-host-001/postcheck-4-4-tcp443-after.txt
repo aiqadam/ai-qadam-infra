@@ -1,0 +1,3 @@
+﻿Phase 4.4 post-apply TCP-reachability probe — port 443 — captured 2026-08-17T10:28:55.2923430+05:00
+TotalSeconds: 13.0451895
+TcpTestSucceeded: False

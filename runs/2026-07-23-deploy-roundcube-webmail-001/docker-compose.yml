@@ -1,0 +1,32 @@
+services:
+  roundcube:
+    image: roundcube/roundcubemail:1.6.17-apache
+    container_name: roundcube-1
+    restart: unless-stopped
+    ports:
+      - 127.0.0.1:8888:80
+    environment:
+      ROUNDCUBEMAIL_DEFAULT_HOST: ssl://mail.aiqadam.org
+      ROUNDCUBEMAIL_DEFAULT_PORT: 993
+      ROUNDCUBEMAIL_SMTP_SERVER: mail.aiqadam.org
+      ROUNDCUBEMAIL_SMTP_PORT: 587
+      ROUNDCUBEMAIL_DB_TYPE: sqlite
+      ROUNDCUBEMAIL_DB_DSN: sqlite:////var/roundcube/db/roundcube.db
+      ROUNDCUBEMAIL_SKIN: elastic
+      ROUNDCUBEMAIL_PLUGINS: archive,zipdownload
+      ROUNDCUBEMAIL_CIPHER_KEY: ${ROUNDCUBE_CIPHER_KEY}
+    volumes:
+      - roundcube_db:/var/roundcube/db
+      - /opt/roundcube/config/config.inc.php:/var/www/html/config/config.inc.php:ro
+      - roundcube_temp:/tmp/roundcube-temp
+    networks:
+      - stalwart_network
+
+volumes:
+  roundcube_db:
+  roundcube_temp:
+
+networks:
+  stalwart_network:
+    external: true
+    name: stalwart-mail_default

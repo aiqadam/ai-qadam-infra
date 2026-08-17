@@ -1,0 +1,38 @@
+﻿{
+    "actions": [
+        {
+            "id": 649442009443381,
+            "status": "success",
+            "command": "set_firewall_rules",
+            "progress": 100,
+            "started": "2026-08-17T05:28:14Z",
+            "finished": "2026-08-17T05:28:14Z",
+            "error": null,
+            "resources": [
+                {
+                    "id": 11204449,
+                    "type": "firewall"
+                }
+            ]
+        },
+        {
+            "id": 649442009443382,
+            "status": "running",
+            "command": "apply_firewall",
+            "progress": 10,
+            "started": "2026-08-17T05:28:14Z",
+            "finished": null,
+            "error": null,
+            "resources": [
+                {
+                    "id": 11204449,
+                    "type": "firewall"
+                },
+                {
+                    "id": 145542849,
+                    "type": "server"
+                }
+            ]
+        }
+    ]
+}

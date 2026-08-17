@@ -1,0 +1,3 @@
+﻿Phase 0.7 baseline TCP-reachability probe — port 80 — captured 2026-08-17T10:17:11.9406550+05:00
+TotalSeconds: 31.8145494
+TcpTestSucceeded: False

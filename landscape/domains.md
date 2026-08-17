@@ -1,8 +1,8 @@
 ---
 name: domains
-last_verified: 2026-07-19
+last_verified: 2026-07-23
 status: active
-last_verified_note: 2026-07-19 (T-0117) — added mail.aiqadam.org subdomain (self-hosted Stalwart mail server on pro-data-tech-prod, replacing the dead third-party mail.aiqadam.org host) and its two independent TLS cert entries (certbot-managed for the admin UI, Stalwart's own internal-ACME-managed for SMTP/IMAP/submission). Prior note: 2026-07-19 — added qa.aiqadam.org and auth.qa.aiqadam.org, discovered live (not created by this repo) via a T-0117 pre-cutover Cloudflare zone-diff safety check; both created 2026-07-18 by separate, user-confirmed-expected QA/Authentik work not tracked by any task file here — see cloudflare.md for full detail. Prior note: T-0111 done 2026-07-13 — added aiqadam.org apex domain (AiQadam prod app host) and its TLS cert entry; apex A record repointed from a third-party host. Prior note: T-0110 done 2026-07-13 — added qa-uz.aiqadam.org subdomain (AiQadam QA app host) and its TLS cert entry.
+last_verified_note: 2026-07-23 (T-0122) — added webmail.aiqadam.org subdomain (Roundcube webmail on pro-data-tech-prod, Cloudflare A record id d44ce1ab6990cf47848148634809463d) and its TLS cert entry (certbot ECDSA, expires 2026-10-21). Prior note: 2026-07-19 (T-0117) — added mail.aiqadam.org subdomain (self-hosted Stalwart mail server on pro-data-tech-prod, replacing the dead third-party mail.aiqadam.org host) and its two independent TLS cert entries (certbot-managed for the admin UI, Stalwart's own internal-ACME-managed for SMTP/IMAP/submission). Prior note: 2026-07-19 — added qa.aiqadam.org and auth.qa.aiqadam.org, discovered live (not created by this repo) via a T-0117 pre-cutover Cloudflare zone-diff safety check; both created 2026-07-18 by separate, user-confirmed-expected QA/Authentik work not tracked by any task file here — see cloudflare.md for full detail. Prior note: T-0111 done 2026-07-13 — added aiqadam.org apex domain (AiQadam prod app host) and its TLS cert entry; apex A record repointed from a third-party host. Prior note: T-0110 done 2026-07-13 — added qa-uz.aiqadam.org subdomain (AiQadam QA app host) and its TLS cert entry.
 ---
 
 # Domains
@@ -22,6 +22,7 @@ last_verified_note: 2026-07-19 (T-0117) — added mail.aiqadam.org subdomain (se
 | qa.aiqadam.org | 95.46.211.230 | (not captured by this repo) | Recreated by separate, out-of-band work, unrelated to this repo's original `qa.aiqadam.org` (deleted by T-0110, see Notes below). Discovered 2026-07-19, user-confirmed expected. Purpose/owning task not documented here — see [`cloudflare.md`](./cloudflare.md). | discovered, not this repo |
 | auth.qa.aiqadam.org | 95.46.211.230 | (not captured by this repo) | Authentik (or similar) auth service on `pro-data-tech-qa`, per the record's own Cloudflare comment. Discovered 2026-07-19, user-confirmed expected. Not otherwise documented in [`hosts/pro-data-tech-qa.md`](./hosts/pro-data-tech-qa.md) — a host-level discovery task may be warranted to document this service properly. | discovered, not this repo |
 | mail.aiqadam.org | 95.46.211.224 | (see [`cloudflare.md`](./cloudflare.md) for record ID) | Self-hosted Stalwart mail server (SMTP/IMAP/JMAP/submission) — replaces the dead third-party `mail.aiqadam.org` (`212.20.151.29`). Admin/JMAP web UI proxied by nginx at `https://mail.aiqadam.org/`; reuses an orphaned certbot cert from executor attempt 1. | T-0117 |
+| webmail.aiqadam.org | 95.46.211.224 | `d44ce1ab6990cf47848148634809463d` | Roundcube 1.6.17 webmail UI for `@aiqadam.org` users. Docker Compose project `roundcube` on pro-data-tech-prod; proxied by nginx at `https://webmail.aiqadam.org/`. DNS grey-cloud (proxied=false). | T-0122 |
 
 ### TLS certificates
 
@@ -32,6 +33,7 @@ last_verified_note: 2026-07-19 (T-0117) — added mail.aiqadam.org subdomain (se
 | qa-uz.aiqadam.org | `/etc/letsencrypt/live/qa-uz.aiqadam.org/fullchain.pem` | Let's Encrypt (ECDSA) | 2026-10-11 | `certbot.timer` (active) | T-0110, 2026-07-13 |
 | mail.aiqadam.org (admin UI, nginx) | `/etc/letsencrypt/live/mail.aiqadam.org/fullchain.pem` | Let's Encrypt (ECDSA) | 2026-10-17 | `certbot.timer` (active) — reused from an orphaned executor-attempt-1 cert | T-0117, 2026-07-19 |
 | mail.aiqadam.org (SMTP/IMAP/submission, Stalwart internal ACME) | managed inside Stalwart's own data store, not on the filesystem as a certbot-style path | Let's Encrypt (CN=`*.aiqadam.org`, CA `YE2`, DNS-01 via `AcmeProvider i9noabxeabab`) | 2026-10-17 | Stalwart's own internal ACME renewal (independent of `certbot.timer`) | T-0117, 2026-07-19 |
+| webmail.aiqadam.org | `/etc/letsencrypt/live/webmail.aiqadam.org/fullchain.pem` | Let's Encrypt (ECDSA) | 2026-10-21 | `certbot.timer` (active) | T-0122, 2026-07-23 |
 
 ## Notes
 

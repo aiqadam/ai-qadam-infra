@@ -30,10 +30,52 @@ Via the web admin panel (no CLI needed for routine use):
 
 If the admin panel is unavailable, the equivalent can be done via `stalwart-cli`/raw JMAP `x:Account/set` calls — see [`landscape/hosts/pro-data-tech-prod.md`](../landscape/hosts/pro-data-tech-prod.md)'s "Mailbox provisioning" and "Stalwart CLI gotchas" sections for the exact object shape (`@type: "User"`, numeric-string-keyed `credentials` map — this is not obvious from Stalwart's own docs and was discovered the hard way during T-0117).
 
-## What this protocol does not cover
+## Automated provisioning (platform-integrated)
+
+Agreed design (2026-07-23, [T-0123](../tasks/T-0123-automated-mailbox-provisioning-on-user-registration.md)): mailbox creation is integrated into the platform's user registration flow rather than being a separate manual request.
+
+### Flow
+
+1. User fills the registration form on aiqadam.org (chapter/tenant, personal email, username, etc.)
+2. The NestJS `apps/api` creates the platform user record.
+3. After the user record is committed, `MailboxService.provision(username)` is called:
+   - Creates `<username>@aiqadam.org` via Stalwart JMAP `x:Account/set` (loopback `http://127.0.0.1:8080`, admin credentials from env)
+   - Failure is **logged but does not roll back** the platform registration (no transactionality by design)
+4. A "set your password" link is emailed to the user's personal (registration) address via Stalwart SMTP submission (`mail.aiqadam.org:587`, sender `postmaster@aiqadam.org`). A raw password is never emailed.
+
+### Mailbox naming
+
+`<platform_username>@aiqadam.org` — the platform enforces global username uniqueness, so collisions are prevented for new registrations. Pre-existing manually-provisioned accounts (e.g. `vladimir.titenko`, `binali.rustamov`) may conflict if the same string is chosen as a username; `MailboxService` detects the JMAP conflict error and logs a warning without crashing registration.
+
+### Forwarding (on request)
+
+Forwarding is **not** set up automatically at registration. It is a separate, explicitly-triggered action. When requested, `MailboxService.enableForwarding(username, forwardTo)` uploads a Sieve script for the user using a single fixed template — no new script design per user:
+
+```sieve
+require ["copy", "redirect"];
+redirect :copy "<FORWARD_TO>";
+```
+
+Only the destination address is substituted. Stalwart requires a per-user blob (shared scripts across accounts are not supported by the JMAP API), but the template itself is a single code-level constant.
+
+### Required secrets / env vars
+
+| Secret name | Used for |
+|---|---|
+| `aiqadam-prod-stalwart-admin-password` | JMAP admin auth (`x:Account/set` calls) |
+| `aiqadam-prod-stalwart-postmaster-password` | SMTP submission for outbound registration email |
+
+Both injected into the api container's env file. See `landscape/secrets-inventory.md`.
+
+### Manual flow still applies
+
+The manual request → admin-creates flow described below remains valid for edge cases (e.g. admin override, accounts for non-registering team members, pre-platform accounts). It does not replace the automated flow — both coexist.
+
+---
+
+## What this protocol does not cover (manual-only scope)
 
 - **Deletion/offboarding** — not yet defined. Until it is, deleting a mailbox is an ad hoc admin action; consider revisiting once the community has enough mailboxes for this to matter.
-- **Automation** — a self-service form or bot that creates mailboxes directly is plausible future work, not built. Flag as a follow-on task if request volume makes manual admin handling a bottleneck.
 
 ## Notes
 
@@ -48,10 +90,14 @@ ssh -i ~/.ssh/<their-key> -o IdentitiesOnly=yes -L 9080:127.0.0.1:8080 viktor_d|
 
 http://localhost:9080
 
-## Preregistered mailboxes to create:
-aigerim.kambetbayeva@aiqadam.org routing to kambetbayeva@gmail.com
-binali.rustamov@aiqadam.org routing to binali.rustamov@gmail.com  ← principal id=g, Sieve forwarding pending
-vladimir.titenko@aiqadam.org routing to tvolodi@gmail.com  ← DONE 2026-07-21: principal id=h, active Sieve script "forward-to-gmail" (id=b, :copy)
+## Preregistered mailboxes (all provisioned):
+| Email | Forward to | Principal id | Sieve script | Done |
+|---|---|---|---|---|
+| vladimir.titenko@aiqadam.org | tvolodi@gmail.com | h | forward-to-gmail (id=b, :copy) | 2026-07-21 |
+| binali.rustamov@aiqadam.org | binali.rustamov@gmail.com | g | forward-to-gmail (id=b, :copy) | 2026-07-23 |
+| aigerim.kambetbayeva@aiqadam.org | kambetbayeva@gmail.com | i | forward-to-gmail (id=b, :copy) | 2026-07-23 |
+
+Note: `aigerim.kambetbayeva` was created via `x:Account/set` (JMAP, domainId=b) since `Principal/set` create is read-only in Stalwart v0.16. All others pre-existed.
 
 ## How to set Sieve forwarding via JMAP API (admin, from prod host)
 

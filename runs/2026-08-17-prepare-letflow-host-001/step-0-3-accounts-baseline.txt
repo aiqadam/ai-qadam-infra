@@ -1,0 +1,36 @@
+Phase 0.3 baseline snapshot — captured 2026-08-17 (attempt 4 executor-infra run)
+Command: ssh ubuntu-16gb-nbg1-1 "id viktor_d; id binali_r; sudo chage -l viktor_d; sudo chage -l binali_r; sudo passwd -S viktor_d; sudo passwd -S binali_r"
+
+--- id viktor_d ---
+uid=1001(viktor_d) gid=1001(viktor_d) groups=1001(viktor_d),27(sudo),100(users)
+
+--- id binali_r ---
+uid=1002(binali_r) gid=1002(binali_r) groups=1002(binali_r),27(sudo),100(users)
+
+--- sudo chage -l viktor_d ---
+Last password change					: Jun 27, 2026
+Password expires					: never
+Password inactive					: never
+Account expires						: never
+Minimum number of days between password change		: 0
+Maximum number of days between password change		: 99999
+Number of days of warning before password expires	: 7
+
+--- sudo chage -l binali_r ---
+Last password change					: Jun 27, 2026
+Password expires					: never
+Password inactive					: never
+Account expires						: never
+Minimum number of days between password change		: 0
+Maximum number of days between password change		: 99999
+Number of days of warning before password expires	: 7
+
+--- sudo passwd -S viktor_d ---
+viktor_d L 2026-06-27 0 99999 7 -1
+
+--- sudo passwd -S binali_r ---
+binali_r L 2026-06-27 0 99999 7 -1
+
+--- Rollback reference values (pre-lockout state, for Phase 1 rollback if needed) ---
+viktor_d: Account expires = never (i.e. no expiration date set — restore with `sudo usermod -e "" viktor_d`); password already locked (L) pre-existing, independent of this plan's Phase 1 (restore/no-op with `sudo usermod -L viktor_d` — already locked, no unlock needed on rollback since original state was already L).
+binali_r: Account expires = never (restore with `sudo usermod -e "" binali_r`); password already locked (L) pre-existing (restore/no-op — already locked).

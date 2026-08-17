@@ -1,0 +1,3 @@
+﻿Phase 0.7 baseline TCP-reachability probe — port 443 — captured 2026-08-17T10:17:44.3083453+05:00
+TotalSeconds: 31.6131873
+TcpTestSucceeded: False
