@@ -11,6 +11,15 @@ id_ed25519*
 *token*
 !*token*.md
 !*token*-inventory.md
+# `*token*` also matches whole directories when a run-id or task-id happens
+# to contain the word "token" (e.g. runs/<date>-rotate-...-token-.../) —
+# git can't re-include files inside an already-excluded directory, so the
+# .md negation above silently loses to this at the directory level. Audit
+# trail directories must never be silently dropped this way; recall by
+# filename pattern within these trees, not by directory-level exclusion.
+!runs/*/
+!runs/*/**
+!tasks/*.md
 /landscape/secrets-inventory.md
 /landscape/secrets-inventory-*.md
 

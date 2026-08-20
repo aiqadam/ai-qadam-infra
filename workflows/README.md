@@ -9,6 +9,7 @@ Each workflow defines an end-to-end process for a class of tasks. All workflows 
 | [`_common-operations.md`](./_common-operations.md) | The 8-step skeleton. All workflows inherit from this. |
 | [`infrastructure.md`](./infrastructure.md) | Changes to hosts, services, networking, Cloudflare, certificates. State-changing. |
 | [`cicd.md`](./cicd.md) | Building, testing, deploying software to managed hosts. State-changing. |
+| [`deploy-app.md`](./deploy-app.md) | Application deployment — building and deploying versioned apps to test or prod, using `executor-cicd`. State-changing. |
 | [`discovery-host.md`](./discovery-host.md) | Read-only enumeration of a managed host. `state_changing: false` — no approval gate. |
 | [`discovery-cloudflare.md`](./discovery-cloudflare.md) | Read-only enumeration of Cloudflare zones. `state_changing: false` — no approval gate. |
 | [`audit-host.md`](./audit-host.md) | Read-only **vulnerability audit** of a managed host (CVE/patch posture, SSH/sudoers hardening, container security flags, nginx TLS, world-writable scan, log review). Creates observation tasks for findings. `state_changing: false`. |

@@ -55,7 +55,7 @@ source_runs: [<run_id>, ...]      # runs that surfaced this item
 executed_by_runs: [<run_id>, ...] # runs that worked on this item
 affects:                          # landscape files this task is about
   - landscape/<path>
-workflow: infrastructure | cicd | discovery-host | discovery-cloudflare | manual | none
+workflow: infrastructure | cicd | deploy-app | discovery-host | discovery-cloudflare | manual | none
 blocks: [T-NNNN, ...]             # other tasks that depend on this one
 blocked_by: [T-NNNN, ...]
 related: [T-NNNN, ...]
