@@ -292,3 +292,16 @@ runnable-to-green in the current environment.
   `/rules`/`/about`/`/history`/`/partners` return 200 with no
   regression. execution-validator (step-07) and landscape-updater
   (step-08) both PASS. `landscape/hosts/pro-data-tech-qa.md` updated.
+- 2026-08-21: Post-completion content fix — 3 of the 5 uploaded files
+  carried a Windows/Drive-style duplicate-download suffix in their
+  filename (`AI_Qadam_Kazakhstan_MoU-2105 (3).docx`, `AI Qadam Global
+  Board Положение (2).docx`, `AI Qadam Soglashenie v1 (2).docx`),
+  present in both Directus's `filename_download`/`title` on the
+  `directus_files` row and the matching `content_documents.
+  source_document_label`. User caught this from the live page.
+  Confirmed underlying bytes unchanged (filesize match against the
+  correctly-named local source files) — pure metadata fix, no
+  re-upload needed. PATCHed both fields on all 3 affected rows via
+  the Directus admin token; verified live: citation label, rendered
+  `Content-Disposition` filename, and all sibling pages (`/rules`,
+  `/about`, `/history`, `/partners`) all correct/unaffected.
