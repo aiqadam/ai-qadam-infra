@@ -2,7 +2,7 @@
 id: T-0141-provision-rules-source-file-downloads-qa
 title: Provision source-file downloads for /rules on QA Directus (aiqadam FR-CMS-008)
 kind: task
-status: blocked
+status: pending
 priority: P2
 created: 2026-08-21
 updated: 2026-08-21
@@ -16,7 +16,7 @@ affects:
 workflow: deploy-app
 blocks: []
 blocked_by: []
-related: [T-0136-seed-content-documents-qa, T-0139-verify-no-other-stale-qa-directus-schema-drift]
+related: [T-0136-seed-content-documents-qa, T-0139-verify-no-other-stale-qa-directus-schema-drift, T-0142-expose-qa-directus-vhost]
 estimated_blast_radius: low
 estimated_reversibility: full
 ---
@@ -213,3 +213,25 @@ runnable-to-green in the current environment.
   — QA links would point at an unreachable prod host. Nothing on QA
   touched. Resumes after the app-repo env-config fix + a QA Directus
   vhost land. See Result section.
+- 2026-08-21: T-0142 (both phases) complete — cms.qa.aiqadam.org is now
+  live (nginx vhost, cert SAN expansion, DNS, PUBLIC_DIRECTUS_URL wired,
+  web-next recreated). This task's `blocked_by` is now clear.
+  **Confirmed live (2026-08-21) exactly what this task's Why section
+  already anticipated:** QA's `content_documents` collection still
+  has its original 5 rows from T-0136, but `source_file` is not yet in
+  the public-read allowlist there — `web-next` logs show
+  `fetchContentDocuments failed ... HTTP 403` requesting that field,
+  confirming `bootstrap.sh` (which adds source_file to the allowlist,
+  per FR-CMS-008) has not been re-run on QA since. `/rules` and
+  `/rules/manifesto` currently degrade gracefully (no working
+  documents/links shown) rather than erroring — expected, not a
+  regression from T-0142's changes. This task's own scope (re-run
+  bootstrap.sh, then seed-content-documents.sh, then verify) is exactly
+  what closes this gap. Status remains `blocked` pending the user's
+  go-ahead to resume — T-0142 unblocked it structurally, this task
+  itself hasn't been re-run yet.
+- 2026-08-21: T-0142 closed `done` (execution-validator + landscape-
+  updater both PASS). `blocked_by` cleared, status → `pending` — ready
+  to resume execution (copy the 5 `.docx` files, run `bootstrap.sh`,
+  run `seed-content-documents.sh`, verify end-to-end) whenever the user
+  gives the go-ahead.
