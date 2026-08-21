@@ -2,12 +2,12 @@
 id: T-0141-provision-rules-source-file-downloads-qa
 title: Provision source-file downloads for /rules on QA Directus (aiqadam FR-CMS-008)
 kind: task
-status: pending
+status: done
 priority: P2
 created: 2026-08-21
 updated: 2026-08-21
-closed:
-outcome:
+closed: 2026-08-21
+outcome: success
 created_by: manual
 source_runs: []
 executed_by_runs: [2026-08-21-provision-rules-downloads-qa-001]
@@ -59,7 +59,7 @@ uploaded-but-unreadable assets.
 
 ## What done looks like
 
-- [ ] **(prerequisite, confirmed missing 2026-08-21)** The 5 source
+- [x] **(prerequisite, confirmed missing 2026-08-21)** The 5 source
       `.docx` files are present at
       `/opt/apps/aiqadam-qa/portal-content/20260819/` on the QA host.
       Pre-flight check found `portal-content/` **does not exist there at
@@ -74,7 +74,7 @@ uploaded-but-unreadable assets.
       — they would be lost on a host rebuild and would need re-copying;
       accepted trade-off to keep several MB of binary `.docx` out of git
       history.
-- [ ] `bootstrap.sh` run against QA Directus. Expected delta: the
+- [x] `bootstrap.sh` run against QA Directus. Expected delta: the
       `source_file` field + relation, the `public-documents` folder, and
       the folder-scoped `directus_files` read grant. **Every other
       collection must report `✓ exists` / no-op** — this script also
@@ -83,36 +83,77 @@ uploaded-but-unreadable assets.
       already-integrated cleanup, but any *new* unexpected modification
       to a pre-existing collection is a STOP condition, not something to
       run past).
-- [ ] `seed-content-documents.sh` run against QA. Expected: 5 files
+- [x] `seed-content-documents.sh` run against QA. Expected: 5 files
       uploaded into `public-documents`, each row's `source_file` set.
       Script is idempotent — a re-run must not create duplicate
       `directus_files` rows.
-- [ ] Anonymous (unauthenticated) `GET <directus>/assets/<id>?download`
+- [x] Anonymous (unauthenticated) `GET <directus>/assets/<id>?download`
       for a seeded file returns **200** with `Content-Disposition:
       attachment` preserving the real filename (e.g.
       `AI Qadam Manifesto.docx`) — this is the actual acceptance signal,
       not merely that the row has a non-null `source_file`.
-- [ ] Negative check: an asset **outside** the `public-documents` folder
+- [x] Negative check: an asset **outside** the `public-documents` folder
       still returns **403** to anonymous requests, and anonymous
       `GET /files` does not enumerate the whole file table. The grant is
       deliberately folder-scoped; confirming the scope held is part of
       done, since an over-broad grant would itself be a security finding.
-- [ ] Live browser/curl check: `https://qa.aiqadam.org/rules/manifesto`
+- [x] Live browser/curl check: `https://qa.aiqadam.org/rules/manifesto`
       renders a working download link alongside the existing label, and
       the link resolves to the **public** Directus host — not the
       internal `directus:8055` docker alias (FR-CMS-008 fixed this in
       code; confirming it on the real rendered page is what proves the
       fix works in the deployed environment).
-- [ ] The other 4 document pages (`charter-v0-1`, `kazakhstan-mou`,
+- [x] The other 4 document pages (`charter-v0-1`, `kazakhstan-mou`,
       `global-board-polozhenie-v1`, `soglashenie-v1`) each render a
       working download link.
-- [ ] `qa.aiqadam.org/rules` and the 3 sibling FR-CMS-007 pages
+- [x] `qa.aiqadam.org/rules` and the 3 sibling FR-CMS-007 pages
       (`/about`, `/history`, `/partners`) still return 200 — no
       regression from the schema change.
 
 ## Result
 
-**BLOCKED before execution — nothing on QA was touched.** Run
+**DONE (2026-08-21).** Resumed the same run
+(`2026-08-21-provision-rules-downloads-qa-001`) after T-0142 closed the
+blocker described below. Executed all 4 phases:
+
+1. **Copied the 5 governance `.docx` files** via `scp` to
+   `/opt/apps/aiqadam-qa/portal-content/20260819/` — confirmed
+   byte-exact sizes and filenames (host-local, non-reproducible,
+   accepted trade-off per the decision below).
+2. **Ran `bootstrap.sh`** — hit a real bug on the first attempt:
+   `ensure()` silently skips adding `content_documents.source_file`
+   (and the same gap independently affected the
+   `content_documents/read` permission's `fields` allowlist) on any
+   instance where `content_documents` already existed before
+   FR-CMS-008 shipped, which QA's did (T-0136). Fixed upstream in
+   `aiqadam/ai-qadam-platform` (`ISS-CMS-BOOTSTRAP-SOURCE-FILE-215`,
+   PR [#280](https://github.com/aiqadam/ai-qadam-platform/pull/280),
+   merged), re-pulled onto the host, re-run successfully — field,
+   relation, folder, fields-patch, and grant all created as expected.
+3. **Ran `seed-content-documents.sh`** — all 5 files uploaded and
+   linked cleanly on the first attempt.
+4. **Verified end-to-end, live:** anonymous `200` + correct
+   `Content-Disposition` on all 5 assets; folder-scope negative check
+   (throwaway out-of-folder file → `403` anonymously, absent from the
+   anonymous `/files` listing, then deleted); all 5 `/rules/<slug>`
+   pages plus `/rules`/`/about`/`/history`/`/partners` return `200`;
+   rendered download `href` on `/rules/manifesto` resolves to
+   `https://cms.qa.aiqadam.org/assets/...` with zero internal-URL
+   leakage.
+
+Incidental, benign side effect: this bootstrap run also applied the
+already-shipped `ISS-SEC-PUBLIC-UNMANAGED-001` fix (scoping
+`events`/`speakers`/`event_speakers` public-read grants) for the first
+time on this instance — a security improvement, not a regression,
+since QA had no full bootstrap pass since that fix merged.
+
+Full detail: [step-06 executor-infra](../runs/2026-08-21-provision-rules-downloads-qa-001/step-06-executor-infra.md),
+[step-07 execution-validator](../runs/2026-08-21-provision-rules-downloads-qa-001/step-07-execution-validator.md),
+[step-08 landscape-updater](../runs/2026-08-21-provision-rules-downloads-qa-001/step-08-landscape-updater.md).
+
+### Historical record — the blocker this task hit before T-0142/PR #280 landed
+
+**Originally BLOCKED before execution — nothing on QA was touched.** Run
 `2026-08-21-provision-rules-downloads-qa-001` completed steps 01–03
 (all PASS) and stopped at pre-planning when the Orchestrator settled an
 open question step 03 had flagged as potentially task-shape-changing.
@@ -235,3 +276,19 @@ runnable-to-green in the current environment.
   to resume execution (copy the 5 `.docx` files, run `bootstrap.sh`,
   run `seed-content-documents.sh`, verify end-to-end) whenever the user
   gives the go-ahead.
+- 2026-08-21: user approved resuming (step-05). Resumed the same run.
+  Phase 1 (scp) succeeded cleanly. Phase 2 (`bootstrap.sh`) failed on
+  the first attempt with a real script bug — `ensure()` silently skips
+  adding `content_documents.source_file` on any instance where that
+  collection predates FR-CMS-008 (QA's did, from T-0136). Escalated to
+  the user rather than hand-patching; user chose to fix the code
+  first. Filed and fixed `ISS-CMS-BOOTSTRAP-SOURCE-FILE-215` in
+  `aiqadam/ai-qadam-platform` (PR #280, merged), re-pulled onto the QA
+  host, re-ran `bootstrap.sh` successfully.
+- 2026-08-21: status → `done`. Phase 3 (`seed-content-documents.sh`)
+  and Phase 4 (full live verification) both succeeded — all 5
+  documents anonymously downloadable with correct filenames, negative
+  folder-scope check passed, all `/rules/<slug>` pages plus
+  `/rules`/`/about`/`/history`/`/partners` return 200 with no
+  regression. execution-validator (step-07) and landscape-updater
+  (step-08) both PASS. `landscape/hosts/pro-data-tech-qa.md` updated.
